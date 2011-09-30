@@ -68,7 +68,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
                 if ( $ta.length && typeof( tinyMCE ) == "object" && typeof( tinyMCE.execCommand ) == "function" && !$ta.hasClass("mceEditor") ) {
 
 					$( ".media-buttons a", $w ).each(function(){
-						$(this).attr("href", $(this).attr("href").replace(/\?post_id=0/,'?post_id='+escape( $('.spot-select', $w).val() )+'&widget_id='+$w.attr("id")) );
+						$(this).attr("href", $(this).attr("href").replace(/\?post_id=0/,'?post_id='+escape( $('.spot-id', $w).val() )+'&widget_id='+$w.attr("id")) );
 					});
 					edCanvas = $ta[0];
 

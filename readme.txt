@@ -4,7 +4,7 @@ Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -138,3 +138,6 @@ If you have a featured image, your theme can use this for display options.  If y
 
 = 1.0.1 =
 This version corrects the UI problems experienced by some users, and the repeated draft Spot creation bug when used with template tags for non-existent Spots.
+
+= 1.0.2 =
+This version corrects a bug with media upload buttons not associating the spot with its attachments on the widgets screen.
