@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://interconnectit.com/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke
-Version: 1.0.2
+Version: 1.0.3
 Author URI: http://interconnectit.com
 */
 
@@ -962,12 +962,12 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 
 		// get the content of the widget
 		if ( is_numeric( $id ) )
-			$spot_post = get_post( $id );
+			$post = get_post( $id );
 
-		if ( ! isset( $spot_post ) )
+		if ( ! isset( $post ) )
 			return;
 
-		setup_postdata( $spot_post );
+		setup_postdata( $post );
 
 		// output buffer needed as we want to use "the loop" but need to support shortcode
 		ob_start( );
@@ -985,7 +985,7 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 		do_action( 'spot-after' );
 
 		$output = ob_get_clean( );
-		$status = $spot_post->post_status;
+		$status = $post->post_status;
 
 		// cache it
 		delete_transient( $cache_id );

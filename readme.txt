@@ -141,3 +141,6 @@ This version corrects the UI problems experienced by some users, and the repeate
 
 = 1.0.2 =
 This version corrects a bug with media upload buttons not associating the spot with its attachments on the widgets screen.
+
+= 1.0.3 =
+Bug fix. Featured image was not being correctly displayed as it relies on the $post global being overridden.
