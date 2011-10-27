@@ -58,6 +58,25 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 				}
 			});
 
+			$('.widgets-sortables').bind( 'sortstop.spot', function( e, ui ) {
+				var widget = ui.item,
+					id = widget.attr( 'id' ),
+					text = '',
+					text_id = '';
+
+				if ( typeof( id ) !== 'undefined' && id.match( /^widget-\d+_spot-\d+$/ ) ) {
+					text = widget.find( '.widget-inside textarea[name^=widget-spot]' );
+					text_id = text.attr( 'id' );
+
+					if ( tinyMCE.getInstanceById( text_id ) ) {
+						tinyMCE.triggerSave();
+						tinyMCE.execCommand( 'mceFocus', false, text_id );
+						tinyMCE.execCommand( 'mceRemoveControl', false, text_id );
+					}
+					text.removeClass( 'mceEditor' );
+				}
+			} );
+
 			// just the active ones
             $('.widget-liquid-right .widget[id*="spot"], .widget-holder.inactive .widget[id*="spot"]').live('mouseover.spots',function(){
                 var	$w = $(this),
@@ -68,7 +87,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
                 if ( $ta.length && typeof( tinyMCE ) == "object" && typeof( tinyMCE.execCommand ) == "function" && !$ta.hasClass("mceEditor") ) {
 
 					$( ".media-buttons a", $w ).each(function(){
-						$(this).attr("href", $(this).attr("href").replace(/\?post_id=0/,'?post_id='+escape( $('.spot-id', $w).val() )+'&widget_id='+$w.attr("id")) );
+						$(this).attr("href", $(this).attr("href").replace(/\?post_id=0/,'?post_id='+escape( $('.spot-select', $w).val() )+'&widget_id='+$w.attr("id")) );
 					});
 					edCanvas = $ta[0];
 

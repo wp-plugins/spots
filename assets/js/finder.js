@@ -30,6 +30,7 @@
 
 			i.val( v );
 			d.text( t );
+			$( this ).addClass( 'current' ).siblings( ).removeClass( 'current' );
 		} );
 
 		$( '#spot_id_drop_search' ).autocomplete( {
@@ -61,6 +62,7 @@
 															i = $( '#spot_id' );
 														i.val( v );
 														d.text( t );
+														$( '#spot_selector li[data-value=' + v + ']' ).addClass( 'current' ).siblings( ).removeClass( 'current' );
 													},
 
 													delay: 200,
