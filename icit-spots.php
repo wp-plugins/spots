@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://interconnectit.com/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke
-Version: 1.0.3
+Version: 1.0.4
 Author URI: http://interconnectit.com
 */
 
@@ -369,7 +369,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			global $pagenow; ?>
 
 			<style type="text/css">
-				#content_addspotbutton span.mce_addspotbutton,
+				#wpbody-content span.mce_addspotbutton,
 				#adminmenu #menu-posts-spot div.wp-menu-image,
 				#icon-edit.icon32-posts-spot {
 					background-image: url( <?php echo esc_url( SPOTS_URL ) ?>/assets/icon.png );
@@ -378,7 +378,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 					background-position:0 0;
 				}
 
-				#content_addspotbutton span.mce_addspotbutton:hover	{ background-position: 0 -20px }
+				#wpbody-content span.mce_addspotbutton:hover	{ background-position: 0 -20px }
 				#adminmenu #menu-posts-spot div.wp-menu-image 		{ background-position: -20px 0 }
 				#adminmenu #menu-posts-spot:hover div.wp-menu-image{ background-position: -20px -28px }
 				#icon-edit.icon32-posts-spot 						{ background-position: -48px 0 }
@@ -548,12 +548,16 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 					// get the mce and upload stuff ready
 					add_thickbox();
 					wp_enqueue_script('media-upload');
-					add_action( 'admin_print_footer_scripts', 'wp_tiny_mce', 300 );
-					if ( $wp_version >= 3.3 ) {
+
+					// Need to floatval it to kill any -beta tags
+					if ( version_compare( floatval( $wp_version ), 3.3, '>=' ) ) {
 						// editor button CSS is split out in 3.3
 						wp_enqueue_style( 'editor-buttons' );
 						wp_enqueue_style( 'wp-jquery-ui-dialog' );
-					}
+						add_action( 'admin_print_footer_scripts', array( &$this, 'output_tiny_mce' ), 300 );
+
+					} else
+						add_action( 'admin_print_footer_scripts', 'wp_tiny_mce', 300 );
 
 					if ( get_user_option( 'rich_editing' ) == 'true' ) {
 						add_filter( 'mce_buttons', array( &$this, 'mce_buttons' ), 100 );
@@ -574,6 +578,14 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 					remove_editor_styles();
 				}
 			}
+		}
+
+		function output_tiny_mce( ) { ?>
+
+			<div id="icit_spot_footer_mce" style="display:none"><?php
+				wp_editor( '', 'icit_spot_footer_mce', array( 'editor_class' => 'hidden' ) ); ?>
+			</div> <?php
+
 		}
 
 		// basic button set for widget
@@ -649,7 +661,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			$instance = $old_instance;
 			$instance[ 'title' ] = strip_tags( $new_instance[ 'title' ] );
 			$instance[ 'id' ] = intval( $new_instance[ 'id' ] );
-			$instance[ 'template' ] = $new_instance[ 'template' ];
+			$instance[ 'template' ] = isset( $new_instance[ 'template' ] ) ? $new_instance[ 'template' ] : false;
 
 			// create spot if doesn't exist and there's a widget title
 			if ( ( empty( $instance[ 'id' ] ) || $instance[ 'id' ] == 0 ) && ! empty( $instance[ 'title' ] ) )
@@ -737,9 +749,9 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 		// copied from the_editor() function in admin post.php
 		function the_editor($content, $id = 'content', $media_buttons = true) {
-			$rows = get_option('default_post_edit_rows');
-			//if (($rows < 3) || ($rows > 100))
-				$rows = 5;
+			global $wp_version;
+
+			$rows = 5;
 
 			if ( !current_user_can( 'upload_files' ) )
 				$media_buttons = false;
@@ -755,7 +767,9 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				<div class="editor-toolbar">
 			<?php
 				if ( $richedit ) {
-					$wp_default_editor = wp_default_editor();
+					if ( version_compare( floatval( $wp_version ), 3.3, 'lt' ) )
+						$wp_default_editor = wp_default_editor();
+
 					add_filter('the_editor_content', 'wp_richedit_pre');
 				}
 

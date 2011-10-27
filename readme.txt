@@ -126,6 +126,17 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.0.4 =
+* Fixed: TinyMCE with WordPress 3.3 would leave an editor at the bottom of the widget page.
+* Fixed: TinyMCE would break on drag and drop of a widget.
+* Added: Made the currently selected spot more obvious when in the spot selector MCE popup.
+
+= 1.0.3 =
+* Fixed: Featured image was not being correctly displayed as it relies on the $post global being overridden.
+
+= 1.0.2 =
+* Fixed: Bug with media upload buttons not associating the spot with its attachments on the widgets screen.
+
 = 1.0.1 =
 * Improved UI and UX on widget.
 * Fixed bug that created multiple draft versions of a Spot when a template tag initiated a non-existent Spot.
@@ -144,3 +155,6 @@ This version corrects a bug with media upload buttons not associating the spot w
 
 = 1.0.3 =
 Bug fix. Featured image was not being correctly displayed as it relies on the $post global being overridden.
+
+= 1.0.4 =
+Fixed TinyMCE in the widget with WordPress 3.3 and also fixed drag and drop of a widget would break TinyMCE. Finally Made the currently selected spot more obvious when in the spot selector MCE pop-up.
