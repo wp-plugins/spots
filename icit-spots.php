@@ -222,7 +222,8 @@ if ( ! class_exists( 'icit_spots' ) ) {
 					foreach( $templates as $i => $name ) {
 						printf( '<option value="%s" %s>%s</option>', esc_attr( $name ), selected( $name, $template, false ), esc_html( ucfirst( $name ) ) );
 					} ?>
-				</select> <?php
+				</select>
+				<?php
 			}
 		}
 
@@ -531,62 +532,127 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 	class Spot_Widget extends WP_Widget {
 
+		/**
+		 * For WP<3.3 we need to steal the settings for each instance of TinyMCE
+		 */
+		var $settings = array();
+		var $editor_id = 'spots_mce';
+
 		/** constructor */
 		function Spot_Widget( ) {
 			$widget_ops = array( 'classname' => 'spot', 'description' => __( 'Spot widget. Create or choose an existing spot to display.' ) );
-			$control_ops = array( 'width' => 350 );
+			$control_ops = array( 'width' => 600 );
 			$this->WP_Widget( SPOTS_POST_TYPE, __( 'Spot', SPOTS_DOM ), $widget_ops, $control_ops );
 
-			// enqueue wysiwyg scripts
-			global $pagenow, $wp_version;
+			add_action( 'admin_init', array( &$this, 'admin_init' ), 100 );
+			add_action( 'admin_footer', array( &$this, 'admin_footer' ), 3001 );
+			add_action( 'wp_ajax_set-spot-thumbnail', array( &$this, 'set_spot_thumbnail' ) );
 
-			if ( is_admin( ) ) {
-				add_action( 'admin_init', array( &$this, 'fix_async_upload_image' ) );
-				add_action( 'wp_ajax_set-spot-thumbnail', array( &$this, 'set_spot_thumbnail' ) );
-				if ( 'widgets.php' == $pagenow ) {
+		}
 
-					// get the mce and upload stuff ready
-					add_thickbox();
-					wp_enqueue_script('media-upload');
 
-					// Need to floatval it to kill any -beta tags
-					if ( version_compare( floatval( $wp_version ), 3.3, '>=' ) ) {
-						// editor button CSS is split out in 3.3
-						wp_enqueue_style( 'editor-buttons' );
-						wp_enqueue_style( 'wp-jquery-ui-dialog' );
-						add_action( 'admin_print_footer_scripts', array( &$this, 'output_tiny_mce' ), 300 );
+		function admin_init( ) {
+			global $pagenow;
 
-					} else
-						add_action( 'admin_print_footer_scripts', 'wp_tiny_mce', 300 );
+			if ( $pagenow != 'widgets.php' )
+				return;
 
-					if ( get_user_option( 'rich_editing' ) == 'true' ) {
-						add_filter( 'mce_buttons', array( &$this, 'mce_buttons' ), 100 );
-					}
+			// fix async upload image
+			if( isset( $_REQUEST[ 'attachment_id' ] ) )
+				$GLOBALS[ 'post' ] = get_post( $_REQUEST[ 'attachment_id' ] );
 
-					// this comes last
-					wp_enqueue_style( 'spots-css', SPOTS_URL.'/assets/spots.css' );
-					wp_enqueue_script( 'spots-js', SPOTS_URL.'/assets/js/spots.js', array( 'jquery' ), false, true );
-					wp_localize_script( 'spots-js', 'setPostThumbnailL10n', array(
+			// Queue up all the scripts needed.
+			add_thickbox( );
+			wp_enqueue_script( 'spots_script', SPOTS_URL . '/assets/js/spots.js', array( 'jquery' ), '1.0.1', true );
+			wp_enqueue_style( 'spots_style', SPOTS_URL . '/assets/spots.css' );
+			wp_enqueue_script( 'media-upload' );
+
+			wp_localize_script( 'spots_script', 'setPostThumbnailL10n', array(
 						'setThumbnail' => __( 'Use as featured image' ),
 						'saving' => __( 'Saving...' ),
 						'error' => __( 'Could not set that as the thumbnail image. Try a different attachment.' ),
 						'done' => __( 'Done' ),
-						'l10n_print_after' => 'try{convertEntities(setPostThumbnailL10n);}catch(e){};'
+						'l10n_print_after' => 'try{convertEntities(setPostThumbnailL10n);}catch(e){};',
+						// Widget MCE stuff
+						'basename' => SPOTS_POST_TYPE, // Widget Base name
+						'mceid' => $this->editor_id, // Only of use for WP3.3+
+						'media' => '.spot-media-buttons' // The class given to the media buttons
 					) );
+		}
 
-					// remove editor css
-					remove_editor_styles();
+
+		function admin_footer( ) {
+			global $pagenow, $post;
+
+			if ( $pagenow != 'widgets.php' )
+				return;
+
+			if ( empty( $post ) ) // Stops wanrings being thrown on the widget page.
+				$post = (object) array( 'post_status' => 'publish', 'ID' => -1 );
+
+			if ( ! function_exists( 'media_buttons' ) ) // Make sure we have the media buttons
+				include( ABSPATH . 'wp-admin/includes/media.php' ); ?>
+
+			<div id="spot_hidden_editors" class="hidden"><?php
+				add_filter( 'mce_buttons', array( &$this, 'mce_buttons' ) );
+
+				if ( function_exists( 'wp_editor' ) ) {
+					// WP 3.3+
+					wp_editor( '', $this->editor_id, array( 'media_buttons' => false, 'dfw' => false, 'tinymce' => array( 'height' => 300 ) ) );
 				}
+				else {
+					// Older WP
+					add_filter( 'tiny_mce_before_init', array( &$this, 'steal_settings' ), 10 );
+					wp_tiny_mce( false, array( 'icit_id' => $this->editor_id ) );
+					remove_filter( 'tiny_mce_before_init', array( &$this, 'steal_settings' ), 10 );
+
+					// Drop the settings into a var I can access from the JS
+					if ( ! empty( $this->settings ) ) { ?>
+						<script type="text/javascript">
+						/* <![CDATA[ */
+						if ( typeof( icit_mce_settings ) !== 'object' )
+							var icit_mce_settings = {}
+
+						icit_mce_settings.<?php echo esc_js( $this->editor_id ); ?>  = {<?php echo $this->settings; ?>};
+						/* ]]> */
+						</script> <?php
+					}
+
+				}
+
+				remove_filter( 'mce_buttons', array( &$this, 'mce_buttons' ) ); ?>
+
+				<div class="spot-media-buttons hide-if-no-js hidden"><?php
+					// This is hidden here for me to clone from the JS as needed.
+					do_action( 'media_buttons' ); ?>
+				</div>
+			</div><?php
+		}
+
+
+		function steal_settings( $initArray = array( ) ) {
+			if ( ! empty( $initArray[ 'icit_id' ] ) && $initArray[ 'icit_id' ] == $this->editor_id ) {
+				$this->settings = '';
+				foreach ( $initArray as $k => $v ) {
+					if ( is_bool($v) ) {
+						$val = $v ? 'true' : 'false';
+						$this->settings .= $k . ':' . $val . ', ';
+						continue;
+					} elseif ( !empty($v) && is_string($v) && ( '{' == $v{0} || '[' == $v{0} ) ) {
+						$this->settings .= $k . ':' . $v . ', ';
+						continue;
+					}
+
+					$this->settings .= $k . ':"' . $v . '", ';
+				}
+
+				$this->settings = rtrim( trim( $this->settings ), '\n\r,' );
 			}
+
+			return $initArray;
 		}
 
-		function output_tiny_mce( ) { ?>
 
-			<div id="icit_spot_footer_mce" style="display:none"><?php
-				wp_editor( '', 'icit_spot_footer_mce', array( 'editor_class' => 'hidden' ) ); ?>
-			</div> <?php
-
-		}
 
 		// basic button set for widget
 		function mce_buttons( $buttons ) {
@@ -608,28 +674,6 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			return $buttons;
 		}
 
-		function fix_async_upload_image() {
-			if( isset( $_REQUEST[ 'attachment_id' ] ) ) {
-				$GLOBALS[ 'post' ] = get_post( $_REQUEST[ 'attachment_id' ] );
-			}
-		}
-
-		/**
-		* Test context to see if the uploader is being used for the image widget or for other regular uploads
-		*
-		* @return void
-		* @author Shane & Peter, Inc. (Peter Chester)
-		*/
-		function is_widget_context() {
-			if ( isset( $_SERVER['HTTP_REFERER'] ) && strpos( $_SERVER['HTTP_REFERER'], $this->id_base) !== false ) {
-				return true;
-			} elseif ( isset( $_REQUEST['_wp_http_referer'] ) && strpos( $_REQUEST['_wp_http_referer'], $this->id_base ) !== false ) {
-				return true;
-			} elseif ( isset( $_REQUEST['widget_id'] ) && strpos( $_REQUEST['widget_id'], $this->id_base ) !== false ) {
-				return true;
-			}
-			return false;
-		}
 
 		function widget( $args, $instance ) {
 			extract( $args );
@@ -674,6 +718,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			return $instance;
 		}
 
+
 		function form( $instance ) {
 			extract( wp_parse_args( ( array )$instance, array(
 				'title' => '',
@@ -684,27 +729,26 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			if ( ! empty( $id ) && intval( $id ) > 0 )
 				$spot_post = get_post( $id );
 
-			$spots = get_posts( array( 'numberposts' => -1, 'post_type' => SPOTS_POST_TYPE ) );
+			$spots = get_posts( array( 'numberposts' => -1, 'post_type' => SPOTS_POST_TYPE ) ); ?>
 
-			?>
-				<p>
-					<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', SPOTS_DOM ); ?>
-						<input class="widefat title-field" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
-					</label>
-				</p>
+			<p>
+				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', SPOTS_DOM ); ?>
+					<input class="widefat title-field" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+				</label>
+			</p> <?php
 
-			<?php
-				// once a spot is chosen or created the widget is inexorably bound to that spot - simplifies the UI greatly.
-				if ( empty( $id ) || $id == 0 ) { ?>
+			// once a spot is chosen or created the widget is inexorably bound to that spot - simplifies the UI greatly.
+			if ( empty( $id ) || $id == 0 ) { ?>
 				<p>
 					<a class="button create-spot" href="#"><?php _e( 'Create a new spot' ); ?></a>
 					<span class="description"><?php _e( '(You must enter a title first)' ); ?></span>
-				</p>
-			<?php } else { ?>
-				<input class="spot-id" type="hidden" name="<?php echo $this->get_field_name( 'id' ); ?>" value="<?php esc_attr_e( $id ); ?>" />
-			<?php } ?>
+				</p> <?php
+			} else { ?>
 
-			<?php if ( count( $spots ) && ( empty( $id ) || $id == 0 ) ) { ?>
+				<input class="spot-id" type="hidden" name="<?php echo $this->get_field_name( 'id' ); ?>" value="<?php esc_attr_e( $id ); ?>" /> <?php
+			}
+
+			if ( count( $spots ) && ( empty( $id ) || $id == 0 ) ) { ?>
 				<p>
 					<label for="<?php echo $this->get_field_id( 'id' ); ?>"><?php if ( empty( $id ) ) _e( 'Or select an existing ' ); _e( 'Spot:', SPOTS_DOM ); ?>
 						<select name="<?php echo $this->get_field_name( 'id' ); ?>" id="<?php echo $this->get_field_id( 'id' ); ?>" class="widefat spot-select"> <?php
@@ -714,21 +758,21 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 							} ?>
 						</select>
 					</label>
-				</p>
-			<?php } ?>
+				</p> <?php
+			}
 
-			<?php if ( isset( $spot_post ) ) {
+			if ( isset( $spot_post ) ) { ?>
 
-				$this->the_editor( $spot_post->post_content ); ?>
+				<p><textarea cols="40" rows="10" class="widefat mceme" id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>"><?php echo wp_richedit_pre( $spot_post->post_content ); ?></textarea></p>
 
 				<div class="spot-featured-image"><?php
 				// show featured image if set
-				echo $this->_wp_post_thumbnail_html( null, $spot_post->ID ); ?>
+				if ( current_theme_supports( 'post-thumbnails' ) )
+					echo $this->_wp_post_thumbnail_html( null, $spot_post->ID ); ?>
 				</div><?php
+			}
 
-			} ?>
-
-			<?php if ( $templates = icit_spots::get_templates( ) ) { ?>
+			if ( $templates = icit_spots::get_templates( ) ) { ?>
 
 				<p>
 					<label for="<?php echo $this->get_field_id('template'); ?>"><?php _e( 'Template' ) ?></label>
@@ -738,59 +782,13 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 							printf( '<option value="%s" %s>%s</option>', esc_attr( $name ), selected( $name, $template, false ), esc_html( ucfirst( $name ) ) );
 						} ?>
 					</select>
-				</p>
+				</p> <?php
 
-			<?php } ?>
+			} ?>
 
-				<p><a class="edit-spot-link"<?php echo intval( $id ) ? '' : ' style="display:none;"';?> href="./post.php?post=<?php echo $id; ?>&amp;post_type=<?php echo SPOTS_POST_TYPE; ?>&amp;action=edit"><?php _e( 'Go to the full editor for this spot' ); ?></a></p>
-
-			<?php
+			<p><a class="edit-spot-link"<?php echo intval( $id ) ? '' : ' style="display:none;"';?> href="./post.php?post=<?php echo $id; ?>&amp;post_type=<?php echo SPOTS_POST_TYPE; ?>&amp;action=edit"><?php _e( 'Go to the full editor for this spot' ); ?></a></p> <?php
 		}
 
-		// copied from the_editor() function in admin post.php
-		function the_editor($content, $id = 'content', $media_buttons = true) {
-			global $wp_version;
-
-			$rows = 5;
-
-			if ( !current_user_can( 'upload_files' ) )
-				$media_buttons = false;
-
-			$richedit = user_can_richedit();
-			$id_attr = $this->get_field_id($id);
-			$name_attr = $this->get_field_name($id);
-			?>
-			<div class="editor-wrapper">
-			<?php
-
-				if ( $richedit || $media_buttons ) { ?>
-				<div class="editor-toolbar">
-			<?php
-				if ( $richedit ) {
-					if ( version_compare( floatval( $wp_version ), 3.3, 'lt' ) )
-						$wp_default_editor = wp_default_editor();
-
-					add_filter('the_editor_content', 'wp_richedit_pre');
-				}
-
-				if ( $media_buttons ) { ?>
-					<div class="media-buttons hide-if-no-js">
-			<?php	do_action( 'media_buttons' ); ?>
-					</div>
-			<?php
-				} ?>
-				</div>
-			<?php
-				}
-
-				$the_editor = apply_filters('the_editor', "<div class='editorcontainer'><textarea rows='$rows' cols='60' name='$name_attr' id='$id_attr'>%s</textarea></div>\n");
-				$the_editor_content = apply_filters('the_editor_content', $content);
-
-				printf($the_editor, $the_editor_content); ?>
-			</div>
-			<?php
-
-		}
 
 		// alternative spot featured image ajax handler
 		function set_spot_thumbnail() {
@@ -811,6 +809,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			die( '0' );
 		}
 
+
 		// alternative spot featured image interface output
 		function _wp_post_thumbnail_html( $thumbnail_id = NULL, $post_ID = 0 ) {
 			global $content_width, $_wp_additional_image_sizes;
@@ -829,6 +828,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 					$thumbnail_html = wp_get_attachment_image( $thumbnail_id, 'post-thumbnail' );
 				if ( !empty( $thumbnail_html ) ) {
 					$ajax_nonce = wp_create_nonce( "set_spot_thumbnail-$post_ID" );
+
 					$content = sprintf($set_thumbnail_link, $thumbnail_html);
 					$content .= '<p class="hide-if-no-js"><a href="#" class="remove-post-thumbnail" onclick="WPRemoveThumbnail(\'' . $ajax_nonce . '\','. $post_ID .');return false;">' . esc_html__( 'Remove featured image' ) . '</a></p>';
 				}

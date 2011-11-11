@@ -128,7 +128,9 @@ If you have a featured image, your theme can use this for display options.  If y
 
 = 1.0.4 =
 * Fixed: TinyMCE with WordPress 3.3 would leave an editor at the bottom of the widget page.
+* Fixed: TinyMCE would not tolerate other tinyMCE wiget instances.
 * Fixed: TinyMCE would break on drag and drop of a widget.
+* Fixed: Set spot thumbnail always available even when there was no theme support for post-thumbnails.
 * Added: Made the currently selected spot more obvious when in the spot selector MCE popup.
 
 = 1.0.3 =

@@ -1,117 +1,147 @@
 var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThumbnail;
-(function($) {
-
-	tb_position = function() {
-		var tbWindow = $('#TB_window'), width = $(window).width(), H = $(window).height(), W = ( 720 < width ) ? 720 : width, adminbar_height = 0;
-
-		if ( $('body.admin-bar').length )
-			adminbar_height = 28;
-
-		if ( tbWindow.size() ) {
-			tbWindow.width( W - 50 ).height( H - 45 - adminbar_height );
-			$('#TB_iframeContent').width( W - 50 ).height( H - 75 - adminbar_height );
-			tbWindow.css({'margin-left': '-' + parseInt((( W - 50 ) / 2),10) + 'px'});
-			if ( typeof document.body.style.maxWidth != 'undefined' )
-				tbWindow.css({'top': 20 + adminbar_height + 'px','margin-top':'0'});
-		};
-
-		return $('a.thickbox').each( function() {
-			var href = $(this).attr('href');
-			if ( ! href ) return;
-			href = href.replace(/&width=[0-9]+/g, '');
-			href = href.replace(/&height=[0-9]+/g, '');
-			$(this).attr( 'href', href + '&width=' + ( W - 80 ) + '&height=' + ( H - 85 - adminbar_height ) );
-		});
-	};
-	$(window).resize(function(){ tb_position(); });
-
-} )(jQuery);
-
 ;(function($){
 
-    if ( pagenow == "widgets" ) {
+	$( document ).ready( function( ) {
 
-		$(document).ready(function() {
+		var bn = setPostThumbnailL10n.basename, // Widget base name
+			mb = setPostThumbnailL10n.media, // Media buttons
+			mi = setPostThumbnailL10n.mceid, // Settings ID
+			rx = new RegExp( '^widget-\\d+_' + bn + '-\\d+$' ), // Match for widget name
 
-			// edit link
-			$(".spot-select").live("change", function(){
-				var widget = $(this).parents(".widget"),
-					edit_link = widget.find(".edit-spot-link"),
-					edit_href = edit_link.attr("href");
-				if ( $( this ).val() == "" )
-					edit_link.hide();
-				else
-					edit_link.attr("href", edit_href.replace(/post\=\d+/,'post=' + $(this).val())).show();
-			});
+			startMCE = function( id ) {
+				if ( typeof( tinyMCE ) !== 'object' && typeof( tinyMCE.settings ) !== 'object' )
+					return; // I expect tiny would have been initiated by now.
 
+				var ta = $( '#' + id ), // The textarea
+					content = ta.val( ),
+					spot_id = ta.parents( '.widget' ).find( '.spot-id' ).val();
 
-			// filthy dirty way of handling tinyMCE instances in widgets
+				if ( ta.not(':disabled').length && ta.parents( ':not(:hidden)' ).length && ! tinyMCE.getInstanceById( id ) ) {
+					if ( typeof( switchEditors.wpautop ) === 'function' )
+						ta.val( switchEditors.wpautop( content ) );
 
-			// override media-upload.js click event and add our own event that looks at current editor id
-			$('.widget[id*="spot"] a.thickbox').unbind('click').live('click.spots',function(){
-				current_spot = $(this).parents('.widget');
-				if ( typeof(edCanvas) != "undefined" )
-					edCanvas = $(this).parents(".widget").find("textarea")[0];
-				if ( typeof tinyMCE != 'undefined' && tinyMCE.activeEditor ) {
-					tinyMCE.get(edCanvas.id).focus();
-					tinyMCE.activeEditor.windowManager.bookmark = tinyMCE.activeEditor.selection.getBookmark('simple');
-				}
-			});
-
-			$('.widgets-sortables').bind( 'sortstop.spot', function( e, ui ) {
-				var widget = ui.item,
-					id = widget.attr( 'id' ),
-					text = '',
-					text_id = '';
-
-				if ( typeof( id ) !== 'undefined' && id.match( /^widget-\d+_spot-\d+$/ ) ) {
-					text = widget.find( '.widget-inside textarea[name^=widget-spot]' );
-					text_id = text.attr( 'id' );
-
-					if ( tinyMCE.getInstanceById( text_id ) ) {
-						tinyMCE.triggerSave();
-						tinyMCE.execCommand( 'mceFocus', false, text_id );
-						tinyMCE.execCommand( 'mceRemoveControl', false, text_id );
+					if ( ! ta.prev( mb ).length ) {
+						media_buttons.clone().insertBefore( ta ).removeClass( 'hidden' ).find( 'a' ).bind( 'click.' + bn, function( ){
+							if( typeof( tinyMCE ) === 'object' && tinyMCE.getInstanceById( id ) )
+								tinyMCE.execCommand( 'mceFocus', false, id );
+						} ).attr( 'href', function( i, val ) {
+							return val.replace( '?post_id=0&', '?post_id=' + spot_id.toString() + '&' );
+						} );
 					}
-					text.removeClass( 'mceEditor' );
+
+					if ( typeof( tinyMCEPreInit.mceInit[mi] ) !== 'undefined' ) {
+						settings = tinyMCEPreInit.mceInit[mi]; // Wp3.3+
+					}
+					else {
+						settings = typeof( icit_mce_settings ) !== 'undefined' ? icit_mce_settings[mi] : tinyMCE.settings;
+					}
+
+					// Make sure the second tow of buttons is hidden
+					if ( typeof( setUserSetting ) == 'function' )
+						setUserSetting( 'hidetb', '0' );
+
+					try {
+						new tinyMCE.Editor( id, settings ).render();
+					}
+					catch( e ) {
+						// No idea why
+						if ( typeof( console ) !== 'undefined' )
+							console.log( e );
+					}
+
+				}
+			},
+			killMCE = function( id ) {
+				if ( typeof( tinyMCE ) !== 'object' || typeof( id ) == 'undefined' )
+					return;
+
+				if ( tinyMCE.getInstanceById( id ) ) {
+					try {
+						tinyMCE.execCommand( 'mceFocus', false, id );
+						tinyMCE.execCommand( 'mceCleanup', false, id );
+						tinyMCE.triggerSave();
+						tinyMCE.execCommand( 'mceRemoveControl', false, id );
+					}
+					catch( e ) {
+						if ( typeof( console ) !== 'undefined' )
+							console.log( e );
+
+						// We had problems with the focus and cleanup, normally
+						// due to a lost mce. Needs to die without save. :(
+						tinyMCE.execCommand( 'mceRemoveControl', false, id );
+					}
+
+					$( '#' + id ).prev( mb ).remove( );
+				}
+
+			},
+			media_buttons = $( mb );
+
+		if( adminpage == 'widgets-php' ) {
+
+			$( '.widget-liquid-right' ).ajaxComplete( function( e, h, o ) {
+				var req = o.data.split( '&' ),
+					data = {}, _tmp, tx, i;
+
+				for ( i in req ) {
+					_tmp = req[i].split( '=' );
+					data[_tmp[0]] = _tmp[1];
+				}
+
+				if ( data.action == 'save-widget' && data.id_base == bn ) {
+					tx = $( 'div.widget[id$="' + data[ 'widget-id' ] + '"]' ).find( '.widget-inside textarea.mceme' );
+					startMCE( tx.addClass( 'mceEdit' ).attr( 'id' ) );
+				}
+
+			} );
+
+
+			// Kill MCE on widget move
+			$( '.widgets-sortables' ).live( 'sortstart.' + bn, function( e, ui ) {
+				var widget = ui.item,
+					tx = '', id = widget.attr( 'id' );
+
+				if ( typeof( id ) !== 'undefined' && id.match( rx ) ) {
+					tx = widget.find( '.widget-inside textarea.mceme' );
+					killMCE( tx.attr( 'id' ) );
+					tx.removeClass( 'mceEdit' );
 				}
 			} );
 
-			// just the active ones
-            $('.widget-liquid-right .widget[id*="spot"], .widget-holder.inactive .widget[id*="spot"]').live('mouseover.spots',function(){
-                var	$w = $(this),
-					$ta = $(this).find("textarea"),
-                    $ta_id = $ta.attr("id");
 
-				// should we run?
-                if ( $ta.length && typeof( tinyMCE ) == "object" && typeof( tinyMCE.execCommand ) == "function" && !$ta.hasClass("mceEditor") ) {
+			// Listen for a click on the widget drop down toggle and init or kill mce.
+			$( '.widget-title-action a' ).live( 'click.' + bn, function( ) {
+				var widget = $( this ).parents( '.widget' ),
+					tx = '';
 
-					$( ".media-buttons a", $w ).each(function(){
-						$(this).attr("href", $(this).attr("href").replace(/\?post_id=0/,'?post_id='+escape( $('.spot-select', $w).val() )+'&widget_id='+$w.attr("id")) );
-					});
-					edCanvas = $ta[0];
+				if ( widget.attr( 'id' ).match( rx ) ) {
+					tx = widget.find( '.widget-inside textarea.mceme' );
 
-					// override default save control to save mce state before widget save
-					$( ".widget-control-save", $w ).die('click').live('click', function(){
-						if ( tinyMCE.getInstanceById( $ta_id ) ) {
-							tinyMCE.triggerSave();
-							tinyMCE.execCommand('mceFocus', false, $ta_id);
-							tinyMCE.execCommand('mceRemoveControl', false, $ta_id);
-						}
-						wpWidgets.save( $(this).closest( 'div.widget' ), 0, 1, 0 );
+					if ( tx.hasClass( 'mceEdit' ) ) {
+						killMCE( tx.attr( 'id' ) );
+						tx.removeClass( 'mceEdit' );
+					} else {
+						// This is horrid. Due to some styling issues I delay the load of mce until the widget animation is most likely to be done.
+						setTimeout( function( ) { startMCE( tx.attr( 'id' ) ) }, 250 );
+						tx.addClass( 'mceEdit' );
+					}
+
+					// Remove the default save action so we can add our own.
+					widget.find( 'input.widget-control-save' ).die( 'click' ).unbind( 'click' ).bind( 'click', function( e ) {
+						e.preventDefault();
+
+						// Remove MCE
+						killMCE( tx.attr( 'id' ) );
+						tx.removeClass( 'mceEdit' );
+
+						// Trigger the normal WP widget save.
+						wpWidgets.save( widget, 0, 1, 0 );
 						return false;
 					});
+				}
 
-					$ta.addClass( "mceEditor" );
-
-					// hide row 2
-					tinyMCE.settings.theme_advanced_buttons2 = "";
-					tinyMCE.execCommand( "mceAddControl", false, $ta_id );
-
-                }
-            });
-
-		});
+			} );
+		}
 
 		WPSetThumbnailHTML = function(html){
 			$('.spot-featured-image', current_spot).html(html);
@@ -162,9 +192,35 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 			return false;
 		} );
 
-    }
+	} );
 
-})(jQuery);
+
+	tb_position = function() {
+		var tbWindow = $('#TB_window'), width = $(window).width(), H = $(window).height(), W = ( 720 < width ) ? 720 : width, adminbar_height = 0;
+
+		if ( $('body.admin-bar').length )
+			adminbar_height = 28;
+
+		if ( tbWindow.size() ) {
+			tbWindow.width( W - 50 ).height( H - 45 - adminbar_height );
+			$('#TB_iframeContent').width( W - 50 ).height( H - 75 - adminbar_height );
+			tbWindow.css({'margin-left': '-' + parseInt((( W - 50 ) / 2),10) + 'px'});
+			if ( typeof document.body.style.maxWidth != 'undefined' )
+				tbWindow.css({'top': 20 + adminbar_height + 'px','margin-top':'0'});
+		};
+
+		return $('a.thickbox').each( function() {
+			var href = $(this).attr('href');
+			if ( ! href ) return;
+			href = href.replace(/&width=[0-9]+/g, '');
+			href = href.replace(/&height=[0-9]+/g, '');
+			$(this).attr( 'href', href + '&width=' + ( W - 80 ) + '&height=' + ( H - 85 - adminbar_height ) );
+		});
+	};
+	$(window).resize(function(){ tb_position(); });
+
+})( jQuery );
+
 
 // use our own set as featured function
 function WPSetAsThumbnail( c, b ) {
