@@ -9,7 +9,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 			rx = new RegExp( '^widget-\\d+_' + bn + '-\\d+$' ), // Match for widget name
 
 			startMCE = function( id ) {
-				if ( typeof( tinyMCE ) !== 'object' && typeof( tinyMCE.settings ) !== 'object' )
+				if ( ( typeof( tinyMCE ) !== 'object' && typeof( tinyMCE.settings ) !== 'object' ) || typeof( id ) == 'undefined'  )
 					return; // I expect tiny would have been initiated by now.
 
 				var ta = $( '#' + id ), // The textarea
@@ -17,6 +17,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 					spot_id = ta.parents( '.widget' ).find( '.spot-id' ).val();
 
 				if ( ta.not(':disabled').length && ta.parents( ':not(:hidden)' ).length && ! tinyMCE.getInstanceById( id ) ) {
+
 					if ( typeof( switchEditors.wpautop ) === 'function' )
 						ta.val( switchEditors.wpautop( content ) );
 
@@ -129,6 +130,9 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 					// Remove the default save action so we can add our own.
 					widget.find( 'input.widget-control-save' ).die( 'click' ).unbind( 'click' ).bind( 'click', function( e ) {
 						e.preventDefault();
+
+						if ( tx.length == 0 ) // If the textarea wasn't around at the when this was first attached we need to look again
+							tx = widget.find( '.widget-inside textarea.mceme' );
 
 						// Remove MCE
 						killMCE( tx.attr( 'id' ) );

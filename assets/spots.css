@@ -19,3 +19,12 @@
     margin: 0 3px;
 }
 
+.widget-inside .mceEditor table.mceLayout,
+.context-content-widget-admin .mceEditor table.mceLayout {
+	background-color: #fff;
+}
+
+.spot-media-buttons a {
+	cursor: pointer;
+	padding: 0 0 5px 10px;
+}

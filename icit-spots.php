@@ -29,7 +29,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			add_action( 'admin_init', array( &$this, 'do_once' ) );
 			add_action( 'do_once_icit_spots', 'flush_rewrite_rules' );
 
-			add_action( 'save_post', array( &$this, 'update_cache' ) );
+			add_action( 'save_post', array( &$this, 'update_cache' ), 10, 2 );
 			add_action( 'delete_post', array( &$this, 'clean_cache' ) );
 			add_action( 'wp_ajax_find-spot', array( &$this, 'ajax_find_spot' ), 10 );
 			add_action( 'widgets_init', array( 'Spot_Widget', '_init' ) ); // initialise the widget
@@ -244,10 +244,14 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 
 		// keep the cache up to date
-		function update_cache( $post_id ) {
+		function update_cache( $post_id, $post_obj = '' ) {
+			global $post;
 
-			if ( empty( $_POST[ 'post_type' ] ) || $_POST[ 'post_type' ] != SPOTS_POST_TYPE )
+			if ( empty( $post_obj->post_type ) || $post_obj->post_type != SPOTS_POST_TYPE )
 				return $post_id;
+
+			if ( empty( $post ) ) // Make sure the global post object is populated
+				$post = $post_obj;
 
 			// not on autosave
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
@@ -258,8 +262,13 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				return $post_id;
 
 			// save template
-			$template = sanitize_file_name( $_POST[ 'page_template' ] );
-			update_post_meta( $post_id, '_spot_part', $template );
+			if ( isset( $_POST[ 'page_template' ] ) ) {
+				$template = sanitize_file_name( $_POST[ 'page_template' ] );
+				update_post_meta( $post_id, '_spot_part', $template );
+
+			} else {
+				$template = get_post_meta( $post->ID, '_spot_part', true );
+			}
 
 			// check template
 			$cache_id = 'spot_' . $post_id . '_' . sanitize_title_with_dashes( $template );
@@ -541,7 +550,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		/** constructor */
 		function Spot_Widget( ) {
 			$widget_ops = array( 'classname' => 'spot', 'description' => __( 'Spot widget. Create or choose an existing spot to display.' ) );
-			$control_ops = array( 'width' => 600 );
+			$control_ops = array( 'width' => 450 );
 			$this->WP_Widget( SPOTS_POST_TYPE, __( 'Spot', SPOTS_DOM ), $widget_ops, $control_ops );
 
 			add_action( 'admin_init', array( &$this, 'admin_init' ), 100 );
@@ -713,7 +722,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 			// update spot content if we have it
 			if ( isset( $new_instance[ 'content' ] ) && ! empty( $new_instance[ 'content' ] ) )
-				wp_update_post( array( 'ID' => $instance[ 'id' ], 'post_content' => wpautop( $new_instance[ 'content' ] ) ) );
+				wp_update_post( array( 'ID' => $instance[ 'id' ], 'post_content' => $new_instance[ 'content' ] ) );
 
 			return $instance;
 		}
