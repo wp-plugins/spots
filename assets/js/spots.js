@@ -1,16 +1,14 @@
 var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThumbnail;
 ;(function($){
-
 	$( document ).ready( function( ) {
 
 		var bn = setPostThumbnailL10n.basename, // Widget base name
 			mb = setPostThumbnailL10n.media, // Media buttons
 			mi = setPostThumbnailL10n.mceid, // Settings ID
+			re = setPostThumbnailL10n.rich == 1, // Can we rich edit
 			rx = new RegExp( '^widget-\\d+_' + bn + '-\\d+$' ), // Match for widget name
-			re = setPostThumbnailL10n.rich == 1,
 
 			startMCE = function( id ) {
-
 				if ( ! re || ( typeof( tinyMCE ) !== 'object' && typeof( tinyMCE.settings ) !== 'object' ) || typeof( id ) == 'undefined'  )
 					return; // I expect tiny would have been initiated by now.
 
@@ -19,7 +17,6 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 					spot_id = ta.parents( '.widget' ).find( '.spot-id' ).val();
 
 				if ( ta.not(':disabled').length && ta.parents( ':not(:hidden)' ).length && ! tinyMCE.getInstanceById( id ) ) {
-
 					if ( typeof( switchEditors.wpautop ) === 'function' )
 						ta.val( switchEditors.wpautop( content ) );
 

@@ -586,9 +586,10 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				$GLOBALS[ 'post' ] = get_post( $_REQUEST[ 'attachment_id' ] );
 
 			// Queue up all the scripts needed.
-			add_thickbox( );
 			wp_enqueue_script( 'spots_script', SPOTS_URL . '/assets/js/spots.js', array( 'jquery' ), '2.0', true );
 			wp_enqueue_style( 'spots_style', SPOTS_URL . '/assets/spots.css' );
+
+			add_thickbox( );
 			wp_enqueue_script( 'media-upload' );
 
 			if ( user_can_richedit( ) ) {
