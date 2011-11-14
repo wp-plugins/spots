@@ -7,9 +7,11 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 			mb = setPostThumbnailL10n.media, // Media buttons
 			mi = setPostThumbnailL10n.mceid, // Settings ID
 			rx = new RegExp( '^widget-\\d+_' + bn + '-\\d+$' ), // Match for widget name
+			re = setPostThumbnailL10n.rich == 1,
 
 			startMCE = function( id ) {
-				if ( ( typeof( tinyMCE ) !== 'object' && typeof( tinyMCE.settings ) !== 'object' ) || typeof( id ) == 'undefined'  )
+
+				if ( ! re || ( typeof( tinyMCE ) !== 'object' && typeof( tinyMCE.settings ) !== 'object' ) || typeof( id ) == 'undefined'  )
 					return; // I expect tiny would have been initiated by now.
 
 				var ta = $( '#' + id ), // The textarea

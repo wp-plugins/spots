@@ -552,7 +552,12 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		var $settings = array();
 		var $editor_id = 'spots_mce';
 
-		/** constructor */
+
+		/**
+		 * constructor
+		 *
+		 * @return Null
+		 */
 		function Spot_Widget( ) {
 			$widget_ops = array( 'classname' => 'spot', 'description' => __( 'Spot widget. Create or choose an existing spot to display.' ) );
 			$control_ops = array( 'width' => 450 );
@@ -565,6 +570,11 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		}
 
 
+		/**
+		 * Queue up scripts as needed to the widget edit page.
+		 *
+		 * @return Null
+		 */
 		function admin_init( ) {
 			global $pagenow;
 
@@ -577,9 +587,14 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 			// Queue up all the scripts needed.
 			add_thickbox( );
-			wp_enqueue_script( 'spots_script', SPOTS_URL . '/assets/js/spots.js', array( 'jquery' ), '1.0.1', true );
+			wp_enqueue_script( 'spots_script', SPOTS_URL . '/assets/js/spots.js', array( 'jquery' ), '2.0', true );
 			wp_enqueue_style( 'spots_style', SPOTS_URL . '/assets/spots.css' );
 			wp_enqueue_script( 'media-upload' );
+
+			if ( user_can_richedit( ) ) {
+				wp_enqueue_script( 'post' );
+				wp_enqueue_script( 'editor' );
+			}
 
 			wp_localize_script( 'spots_script', 'setPostThumbnailL10n', array(
 						'setThumbnail' => __( 'Use as featured image' ),
@@ -590,15 +605,23 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 						// Widget MCE stuff
 						'basename' => SPOTS_POST_TYPE, // Widget Base name
 						'mceid' => $this->editor_id, // Only of use for WP3.3+
-						'media' => '.spot-media-buttons' // The class given to the media buttons
+						'media' => '.spot-media-buttons', // The class given to the media buttons
+						'rich' => user_can_richedit( ) ? 1 : 0
 					) );
 		}
 
 
+		/**
+		 * Output all the stuff we need into the footer of the widgets page. The
+		 * editor output here won't be used but will be spawned as needed by the
+		 * javascript this is just here to initialise everything.
+		 *
+		 * @return Null
+		 */
 		function admin_footer( ) {
 			global $pagenow, $post;
 
-			if ( $pagenow != 'widgets.php' )
+			if ( $pagenow != 'widgets.php' || ! user_can_richedit( ) )
 				return;
 
 			if ( empty( $post ) ) // Stops wanrings being thrown on the widget page.
@@ -645,6 +668,18 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		}
 
 
+		/**
+		 * For older version of WordPress I need to grab the settings passed to
+		 * TinyMCE so that they can be used again each time we reinit MCE. Wp33+
+		 * keeps the settings for each instance in its own object but prior vers
+		 * don't. There is a filter here for you to pass in your own editor CSS
+		 * for tinyMCE. spots_editor_css
+		 *
+		 * @param array $initArray Array passed to TinyMCE with all its init
+		 * settings
+		 *
+		 * @return Array    The same array as passing in with no changes.
+		 */
 		function steal_settings( $initArray = array( ) ) {
 			if ( ! empty( $initArray[ 'icit_id' ] ) && $initArray[ 'icit_id' ] == $this->editor_id ) {
 				$this->settings = '';
