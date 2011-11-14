@@ -26,7 +26,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 			add_action( 'init', array( &$this, 'post_type' ) );
 			add_action( 'admin_head', array( &$this, 'admin_head' ) );
-			add_action( 'admin_init', array( &$this, 'do_once' ) );
+			add_action( 'admin_init', array( &$this, 'do_once' ), 9000 );
 			add_action( 'do_once_icit_spots', 'flush_rewrite_rules' );
 
 			add_action( 'save_post', array( &$this, 'update_cache' ), 10, 2 );
@@ -376,7 +376,12 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 
 		function admin_head( ) {
-			global $pagenow; ?>
+			global $pagenow, $post;
+
+			if ( ! empty( $post ) && $post->post_type == SPOTS_POST_TYPE && $pagenow == 'post.php' ) {
+				remove_editor_styles( );
+				add_editor_style( apply_filters( 'spots_editor_css', null ) );
+			} ?>
 
 			<style type="text/css">
 				#wpbody-content span.mce_addspotbutton,
@@ -607,7 +612,8 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 				if ( function_exists( 'wp_editor' ) ) {
 					// WP 3.3+
-					wp_editor( '', $this->editor_id, array( 'media_buttons' => false, 'dfw' => false, 'tinymce' => array( 'height' => 300 ) ) );
+					$css = apply_filters( 'spots_editor_css', null );
+					wp_editor( '', $this->editor_id, array( 'media_buttons' => false, 'dfw' => false, 'tinymce' => array( 'height' => 300, 'content_css' => ( ! empty( $css ) ? get_bloginfo( 'template_url' ) . $css : null ) ) ) );
 				}
 				else {
 					// Older WP
@@ -642,7 +648,12 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		function steal_settings( $initArray = array( ) ) {
 			if ( ! empty( $initArray[ 'icit_id' ] ) && $initArray[ 'icit_id' ] == $this->editor_id ) {
 				$this->settings = '';
-				foreach ( $initArray as $k => $v ) {
+				$_tmp = $initArray;
+
+				$css = apply_filters( 'spots_editor_css', null );
+				$_tmp[ 'content_css' ] = ! empty( $css ) ? get_bloginfo( 'template_url' ) . $css : null;
+
+				foreach ( $_tmp as $k => $v ) {
 					if ( is_bool($v) ) {
 						$val = $v ? 'true' : 'false';
 						$this->settings .= $k . ':' . $val . ', ';
