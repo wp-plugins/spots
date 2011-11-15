@@ -725,7 +725,8 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				'|',
 				'justifyleft',
 				'justifycenter',
-				'justifyright' ) );
+				'justifyright',
+				'code' ) );
 
 			return $buttons;
 		}
