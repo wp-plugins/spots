@@ -997,7 +997,7 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 		$name = $id;
 
 		// create the spot if it doesn't exist or assign it's post ID to $id
-		if ( 0 === ( $id = spot_post_exists( $name ) ) ) {
+		if ( 0 == ( $id = spot_post_exists( $name ) ) ) {
 			// create the spot and some useful place holder text if it doesn't exist
 			$new_id = wp_insert_post( array(
 				'post_title' => $name,
