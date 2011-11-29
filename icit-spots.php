@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://interconnectit.com/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke
-Version: 1.0.4
+Version: 1.0.5
 Author URI: http://interconnectit.com
 */
 
@@ -923,8 +923,8 @@ if ( ! function_exists( 'spot_post_exists' ) ) {
 		$post_content = stripslashes( sanitize_post_field( 'post_content', $content, 0, 'db' ) );
 		$post_date = stripslashes( sanitize_post_field( 'post_date', $date, 0, 'db' ) );
 
-		$query = "SELECT ID FROM $wpdb->posts WHERE 1=1";
-		$args = array();
+		$query = "SELECT ID FROM $wpdb->posts WHERE 1=1 AND post_type = %s"; // force checking of spots only
+		$args = array( SPOTS_POST_TYPE );
 
 		if ( !empty ( $date ) ) {
 			$query .= ' AND post_date = %s';

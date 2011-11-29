@@ -4,7 +4,7 @@ Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 1.0.3
+Stable tag: 1.0.5
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -125,6 +125,9 @@ If you have a featured image, your theme can use this for display options.  If y
 6. A Template Tag replacement of content in the footer of the 2010 theme.
 
 == Changelog ==
+
+= 1.0.5 =
+* Updated `spot_post_exists()` to only check the spots post type to avoid displaying other content of the same name.
 
 = 1.0.4 =
 * Added: Made the currently selected spot more obvious when in the spot selector MCE popup.
