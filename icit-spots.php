@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://interconnectit.com/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke
-Version: 1.0.5
+Version: 1.0.4
 Author URI: http://interconnectit.com
 */
 
@@ -18,7 +18,7 @@ if ( version_compare( $wp_version, '3.0', 'lt' ) )
 
 if ( ! class_exists( 'icit_spots' ) ) {
 
-	add_action( 'init', array( 'icit_spots', '_init' ), 1 ); // This creates all the main plugin object and the button object.
+	add_action( 'init', array( 'icit_spots', '_init' ), 1 ); // This creates the main plugin object and the button object.
 
 	class icit_spots {
 
@@ -625,7 +625,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			if ( $pagenow != 'widgets.php' || ! user_can_richedit( ) )
 				return;
 
-			if ( empty( $post ) ) // Stops wanrings being thrown on the widget page.
+			if ( empty( $post ) ) // Stops warnings being thrown on the widget page.
 				$post = (object) array( 'post_status' => 'publish', 'ID' => -1 );
 
 			if ( ! function_exists( 'media_buttons' ) ) // Make sure we have the media buttons
@@ -923,8 +923,8 @@ if ( ! function_exists( 'spot_post_exists' ) ) {
 		$post_content = stripslashes( sanitize_post_field( 'post_content', $content, 0, 'db' ) );
 		$post_date = stripslashes( sanitize_post_field( 'post_date', $date, 0, 'db' ) );
 
-		$query = "SELECT ID FROM $wpdb->posts WHERE 1=1 AND post_type = %s"; // force checking of spots only
-		$args = array( SPOTS_POST_TYPE );
+		$query = "SELECT ID FROM $wpdb->posts WHERE 1=1 AND post_type = '" . SPOTS_POST_TYPE . "'"; // force checking of spots only
+		$args = array();
 
 		if ( !empty ( $date ) ) {
 			$query .= ' AND post_date = %s';
@@ -1043,7 +1043,7 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 		// output buffer needed as we want to use "the loop" but need to support shortcode
 		ob_start( );
 
-		do_action( 'spot-before' );
+		do_action( 'spot-before', $post );
 
 		if ( ! empty( $template ) ) {
 			get_template_part( SPOTS_POST_TYPE, $template );
@@ -1053,7 +1053,7 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 			the_content( );
 		}
 
-		do_action( 'spot-after' );
+		do_action( 'spot-after', $post );
 
 		$output = ob_get_clean( );
 		$status = $post->post_status;
