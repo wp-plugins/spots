@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://interconnectit.com/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke
-Version: 1.0.4
+Version: 1.0.5
 Author URI: http://interconnectit.com
 */
 
@@ -142,7 +142,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				'capability_type' => 'page',
 				'has_archive' => false,
 				'hierarchical' => false,
-				'supports' => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
+				'supports' => array( 'title', 'editor', 'thumbnail', 'custom-fields', 'revisions' ),
 				'taxonomies' => array( ),
 				'register_meta_box_cb' => array( &$this, 'meta_boxes' ),
 				'_edit_link' => 'post.php?post=%d&post_type=' . SPOTS_POST_TYPE // generally frowned on but needs some custom CSS
