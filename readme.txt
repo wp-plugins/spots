@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: interconnectit, spectacula, sanchothefat, tnowell
+Contributors: interconnectit, spectacula, sanchothefat, tjnowell
 Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
