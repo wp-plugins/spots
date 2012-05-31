@@ -4,7 +4,7 @@ Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -99,6 +99,17 @@ There are many filters and hooks available to get even more out of spotsso drop 
 
 == Frequently Asked Questions ==
 
+= When I edit a spot template I don't see the change =
+
+Spots has a built in caching system, a popular request when we first launched the plugin. This creates a problem when you edit the template files that spots use as we can't detect changes without creating a database query.
+
+Place the following code in your functions.php to turn off the cache:
+
+`define( 'SPOTS_CACHE_TIME', 0 );
+`
+
+*NOTE:* We only recommend doing this for your development environment however if your spots are dynamic or you use a site-wide caching plugin then leave the above definition in.
+
 = Can I use Spots to replace the clunky old Text Widget? =
 
 Yes indeed - in fact that was the first inspiration behind creating Spots - we felt the text widget was only suitable for use by people who knew HTML well.  Spots gives you a visual editor, making this much easier to use.
@@ -125,6 +136,10 @@ If you have a featured image, your theme can use this for display options.  If y
 6. A Template Tag replacement of content in the footer of the 2010 theme.
 
 == Changelog ==
+
+= 1.0.6 =
+* Added: Smart default for widget title when selecting a spot
+* Added: Advice on disabling the spots cache to readme.txt
 
 = 1.0.5 =
 * Added: Added support for revisions to the spots post type, idea from Doug Smith (http://smithsrus.com/).

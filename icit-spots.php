@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://interconnectit.com/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke
-Version: 1.0.5
+Version: 1.0.6
 Author URI: http://interconnectit.com
 */
 
@@ -136,6 +136,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				'show_ui' => true,
 				'show_in_menu' => true,
 				'show_in_nav_menus' => false,
+				'menu_position' => 58, 			// just above first divider
 				'query_var' => true,
 				'rewrite' => true,
 				'exclude_from_search' => true,
@@ -738,11 +739,10 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			$id = intval( $instance[ 'id' ] );
 			$template = $instance[ 'template' ];
 
-
 			if ( empty( $id ) )
 				return;
 
-			$content = icit_get_spot( ( int )$id, ! empty( $template ) ? $template : '' );
+			$content = icit_get_spot( ( int )$id, ( ! empty( $template ) ? $template : '' ) );
 
 			if ( empty( $content ) )
 				return;
@@ -771,6 +771,10 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			// update spot content if we have it
 			if ( isset( $new_instance[ 'content' ] ) && ! empty( $new_instance[ 'content' ] ) )
 				wp_update_post( array( 'ID' => $instance[ 'id' ], 'post_content' => $new_instance[ 'content' ] ) );
+
+			// set widget title to spot title if spot not selected previously and widget title not set
+			if ( empty( $old_instance[ 'title' ] ) && empty( $new_instance[ 'title' ] ) && ! intval( $old_instance[ 'id' ] ) && $instance[ 'id' ] )
+				$instance[ 'title' ] = get_the_title( $instance[ 'id' ] );
 
 			return $instance;
 		}
@@ -937,7 +941,7 @@ if ( ! function_exists( 'spot_post_exists' ) ) {
 		}
 
 		if ( !empty ( $content ) ) {
-			$query .= 'AND post_content = %s';
+			$query .= ' AND post_content = %s';
 			$args[] = $post_content;
 		}
 
@@ -982,14 +986,15 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 	$is_id = false;
 	$is_name = false;
 
-	if ( is_numeric( $id ) && $id > 0 )
+	if ( is_numeric( $id ) && $id > 0 ) {
 		$is_id = true;
-
-	elseif ( is_string( $id ) )
+	}
+	elseif ( is_string( $id ) ) {
 		$is_name = true;
-
-	if ( ! $is_id && ! $is_name )
+	}
+	if ( ! $is_id && ! $is_name ) {
 		return;
+	}
 
 	// check if we have an existing spot (only when a name is supplied)
 	if ( $is_name ) {
@@ -1019,8 +1024,8 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 			$template = $post_template;
 	}
 
-	// we need a transient pointer
-	$cache_id = 'spot_' . $id . ( ! empty( $template ) ? '_' . sanitize_title_with_dashes( $template ) : '' );
+	// we need a transient pointer - can't be more than 64 chars
+	$cache_id = 'spot_' . $id . ( ! empty( $template ) ?  '_' . md5( $template ) : '' );
 
 	// check cache
 	if ( ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) && $cache = get_transient( $cache_id ) ) {
@@ -1065,7 +1070,6 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 		// resume normal service
 		wp_reset_postdata();
 	}
-
 
 	// if unpublished and not an editor/author then don't show
 	if ( ( $status != 'publish' && ! current_user_can( 'edit_posts' ) ) )
