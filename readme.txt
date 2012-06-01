@@ -4,7 +4,7 @@ Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -136,6 +136,13 @@ If you have a featured image, your theme can use this for display options.  If y
 6. A Template Tag replacement of content in the footer of the 2010 theme.
 
 == Changelog ==
+
+= 1.0.7 =
+* Added: Allow WordPress to do the serialisation for the transients. Was causing problems after BackupBuddy plugin was used.
+* Fixed: Caching was happening even when cache time was set to 0, removed an unnecessary db query.
+* Fixed: Caching was happeninig in admin which would cause GravityForms to render as the editable form
+* Added: Improved styling of widget for latest WP versions
+* Fixed: URL escaped ampersand in post type edit link
 
 = 1.0.6 =
 * Added: Smart default for widget title when selecting a spot

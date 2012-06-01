@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://interconnectit.com/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke
-Version: 1.0.6
+Version: 1.0.7
 Author URI: http://interconnectit.com
 */
 
@@ -146,7 +146,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				'supports' => array( 'title', 'editor', 'thumbnail', 'custom-fields', 'revisions' ),
 				'taxonomies' => array( ),
 				'register_meta_box_cb' => array( &$this, 'meta_boxes' ),
-				'_edit_link' => 'post.php?post=%d&post_type=' . SPOTS_POST_TYPE // generally frowned on but needs some custom CSS
+				'_edit_link' => 'post.php?post=%d&amp;post_type=' . SPOTS_POST_TYPE // generally frowned on but needs some custom CSS
 				) );
 
 			if ( is_admin( ) && isset( $_GET[ 'post_type' ] ) && $_GET[ 'post_type' ] == SPOTS_POST_TYPE ) {
@@ -272,13 +272,13 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			}
 
 			// check template
-			$cache_id = 'spot_' . $post_id . '_' . sanitize_title_with_dashes( $template );
+			// $cache_id = 'spot_' . $post_id . ( ! empty( $template ) ? '_' . md5( $template ) : '' );
 
-			$post = get_post( $post_id );
+			// $post = get_post( $post_id );
 
-			// update cache for text block
+			// allow cache update on next load for text block
 			$this->remove_transients( $post_id );
-			set_transient( $cache_id, serialize( array( 'output' => icit_get_spot( $post_id, $template ), 'status' => $post->post_status ) ), SPOTS_CACHE_TIME );
+			// set_transient( $cache_id, array( 'output' => icit_get_spot( $post_id, $template ), 'status' => $post->post_status ), SPOTS_CACHE_TIME );
 
 		}
 
@@ -662,7 +662,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 				remove_filter( 'mce_buttons', array( &$this, 'mce_buttons' ) ); ?>
 
-				<div class="spot-media-buttons hide-if-no-js hidden"><?php
+				<div class="spot-media-buttons wp-media-buttons hide-if-no-js hidden"><?php
 					// This is hidden here for me to clone from the JS as needed.
 					do_action( 'media_buttons' ); ?>
 				</div>
@@ -824,7 +824,9 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 			if ( isset( $spot_post ) ) { ?>
 
-				<p><textarea cols="40" rows="10" class="widefat mceme" id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>"><?php echo wp_richedit_pre( $spot_post->post_content ); ?></textarea></p>
+				<div class="editorcontainer">
+					<textarea cols="40" rows="10" class="widefat mceme" id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>"><?php echo wp_richedit_pre( $spot_post->post_content ); ?></textarea>
+				</div>
 
 				<div class="spot-featured-image"><?php
 				// show featured image if set
@@ -1028,9 +1030,14 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 	$cache_id = 'spot_' . $id . ( ! empty( $template ) ?  '_' . md5( $template ) : '' );
 
 	// check cache
-	if ( ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) && $cache = get_transient( $cache_id ) ) {
+	$cache = false;
+	if ( ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) ) {
+		$cache = get_transient( $cache_id );
+	}
+
+	if ( $cache && is_array( $cache ) && isset( $cache[ 'output' ] ) ) {
 		// set vars for final check
-		extract( unserialize( $cache ), EXTR_SKIP );
+		extract( $cache, EXTR_SKIP );
 
 	} else {
 
@@ -1063,9 +1070,11 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 		$output = ob_get_clean( );
 		$status = $post->post_status;
 
-		// cache it
-		delete_transient( $cache_id );
-		set_transient( $cache_id, serialize( array( 'output' => $output, 'status' => $status ) ), SPOTS_CACHE_TIME );
+		if ( ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) ) {
+			// cache it
+			delete_transient( $cache_id );
+			set_transient( $cache_id, array( 'output' => $output, 'status' => $status ), SPOTS_CACHE_TIME );
+		}
 
 		// resume normal service
 		wp_reset_postdata();
