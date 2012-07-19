@@ -163,7 +163,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || ( defined( 'DOING_CRON' ) && DOING_CRON ) || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) )
 				return false;
 
-			$r = wp_parse_args( get_option( __FUNCTION__ . '_setup', array( ) ), array( 'version' => 0, 'time' => time( ) ) );
+			$r = wp_parse_args( get_option( __CLASS__ . '_setup', array( ) ), array( 'version' => 0, 'time' => time( ) ) );
 
 			if ( $r[ 'version' ] != SPOTS_VER || ( defined( 'SPOTS_ONCE_FREQ' ) && SPOTS_ONCE_FREQ > 0 && $r[ 'time' ] + SPOTS_ONCE_FREQ < time( ) ) ) {
 
