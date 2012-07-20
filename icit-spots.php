@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Spots
-Plugin URI: http://interconnectit.com/
+Plugin URI: http://wordpress.org/extend/plugins/spots/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
-Author: Robert O'Rourke
-Version: 1.0.8
+Author: Robert O'Rourke, James R Whitehead, Tom Nowell
+Version: 1.0.9
 Author URI: http://interconnectit.com
 */
 
