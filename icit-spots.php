@@ -18,7 +18,18 @@ if ( version_compare( $wp_version, '3.0', 'lt' ) )
 
 if ( ! class_exists( 'icit_spots' ) ) {
 
+	require_once( 'includes/icit-plugin.php' );
+
+	icit_register_plugin( 'spots', __FILE__, array(
+		'page_title' => __( 'Spots Settings' ),
+		'menu_title' => __( 'Settings' ),
+		'parent_slug' => 'edit.php?post_type=spot'
+	) );
+
 	add_action( 'init', array( 'icit_spots', '_init' ), 1 ); // This creates the main plugin object and the button object.
+
+	// add settings
+	add_action( 'admin_init', array( 'icit_spots', 'settings' ) );
 
 	class icit_spots {
 
@@ -63,7 +74,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				define( 'SPOTS_URL', plugins_url( '', __FILE__ ) );
 
 			if ( ! defined( 'SPOTS_CACHE_TIME' ) )
-				define( 'SPOTS_CACHE_TIME', ( 365*24*60*60 ) );
+				define( 'SPOTS_CACHE_TIME', get_option( 'spots_cache_time', ( 365*24*60*60 ) ) );
 
 			if ( ! defined( 'SPOTS_VER' ) )
 				define ( 'SPOTS_VER', filemtime( __FILE__ ) );
@@ -78,6 +89,17 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 			$icit_spots = new icit_spots( );
 			$icit_spots_mce_button = new icit_spots_mce_button( );
+		}
+
+
+		function settings() {
+			add_settings_field( 'spots_cache_time', __( 'Cache Time (seconds)' ), array( __CLASS__, 'cache_time_field' ), 'spots' );
+			register_setting( 'spots', 'spots_cache_time', 'intval' );
+		}
+
+		function cache_time_field() {
+			echo '<input type="text" name="spots_cache_time" value="' . get_option( 'spots_cache_time', SPOTS_CACHE_TIME ) . '" />';
+			echo '<p class="description">' . __( 'Enter an amount of time in seconds to cache spots for. Set to 0 to turn the caching off, recommeneded if you use a caching plugin.' ) . '</p>';
 		}
 
 
@@ -181,9 +203,16 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		 Call only on the admin side of things as this can be a little heavy...
 		*/
 		function get_templates( ) {
-			$themes = get_themes( );
-			$theme = get_current_theme( );
-			$templates = $themes[ $theme ][ 'Template Files' ];
+			global $wp_version;
+			if ( version_compare( $wp_version, '3.4', '>=' ) ) {
+				$theme = wp_get_theme();
+				$templates = $theme->get_files( '.php' );
+			} else {
+				$themes = get_themes();
+				$theme = get_current_theme();
+				$templates = $themes[ $theme ][ 'Template Files' ];
+			}
+
 			$spot_templates = array( );
 
 			foreach ( $templates as $template ) {
