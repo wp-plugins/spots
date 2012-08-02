@@ -187,7 +187,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 			$r = wp_parse_args( get_option( __CLASS__ . '_setup', array( ) ), array( 'version' => 0, 'time' => time( ) ) );
 
-			if ( $r[ 'version' ] != SPOTS_VER || ( defined( 'SPOTS_ONCE_FREQ' ) && SPOTS_ONCE_FREQ > 0 && $r[ 'time' ] + SPOTS_ONCE_FREQ < time( ) ) ) {
+			if ( $r[ 'version' ] != SPOTS_VER ) {
 
 				do_action( 'do_once_' . __CLASS__, __CLASS__ );
 
