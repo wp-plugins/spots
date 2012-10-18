@@ -137,8 +137,12 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.1.1 =
+* Added: Logged in users able to edit spots can now see an edit link when hovering over a spot on the frontend
+* Fixed: The edit link on the spots widget edit form now has a target of _parent
+
 = 1.1.0 =
-* Fixed: the new theme template API implementation actually works now! Sorry folks
+* Fixed: The new theme template API implementation actually works now! Sorry folks
 
 = 1.0.9 =
 * Added a basic options page to control the caching
