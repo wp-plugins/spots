@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://wordpress.org/extend/plugins/spots/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
-Version: 1.1.1
+Version: 1.1.2
 Author URI: http://interconnectit.com
 */
 
@@ -44,6 +44,10 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			add_action( 'delete_post', array( &$this, 'clean_cache' ) );
 			add_action( 'wp_ajax_find-spot', array( &$this, 'ajax_find_spot' ), 10 );
 			add_action( 'widgets_init', array( 'Spot_Widget', '_init' ) ); // initialise the widget
+
+			if(get_option('spots_norobots',1) == 1){
+				add_action( 'wp_head', array( &$this, 'norobots_check' ) );
+			}
 
 			add_shortcode( 'icitspot', array( &$this, 'shortcode') );
 
@@ -94,12 +98,33 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 		function settings() {
 			add_settings_field( 'spots_cache_time', __( 'Cache Time (seconds)' ), array( __CLASS__, 'cache_time_field' ), 'spots' );
+			add_settings_field( 'spots_norobots', __( 'NoIndex on Single Spot Pages?' ), array( __CLASS__, 'norobots_field' ), 'spots' );
 			register_setting( 'spots', 'spots_cache_time', 'intval' );
+			register_setting( 'spots', 'spots_norobots', 'intval' );
 		}
 
 		function cache_time_field() {
 			echo '<input type="text" name="spots_cache_time" value="' . get_option( 'spots_cache_time', SPOTS_CACHE_TIME ) . '" />';
 			echo '<p class="description">' . __( 'Enter an amount of time in seconds to cache spots for. Set to 0 to turn the caching off, recommeneded if you use a caching plugin.' ) . '</p>';
+		}
+
+		function norobots_field() {
+			echo '<input type="checkbox" name="spots_norobots" value="1" '; echo checked(get_option( 'spots_norobots', 1 ),1); echo ' />';
+			echo '<p class="description">' . __( 'Each Spot has a dedicated page, allow these pages to be indexed by search engines?' ) . '</p>';
+		}
+
+
+		function norobots_check(){
+			global $wp_query;
+			if(isset($wp_query->query['post_type'])){
+				if($wp_query->query['post_type'] == 'spot'){
+					?>
+					<meta name="robots" content="noindex, nofollow" />
+					<?php
+				}
+			}
+			
+			
 		}
 
 
@@ -765,19 +790,20 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			.icit-spot-edit-link-holder {
 				position:relative;
 				width:100%;
-				height:0; background:transparent;
+				height:0;
+				background:transparent;
 			}
-			.spot .icit-spot-edit-link {
+			.spot .icit-spot-edit-link-holder .icit-spot-edit-link {
 				display:none;
 			}
-			.spot:hover .icit-spot-edit-link {
+			.spot:hover .icit-spot-edit-link-holder .icit-spot-edit-link {
 				text-decoration:none;
 				position: relative;
 				top: 0;
 				background: black;
 				border-radius: 3px;
 				padding: 2px 6px;
-				color: white;
+				color: white !important;
 				display: block;
 				width: 24px;
 				margin-left: -36px;

@@ -4,7 +4,7 @@ Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -136,6 +136,10 @@ If you have a featured image, your theme can use this for display options.  If y
 6. A Template Tag replacement of content in the footer of the 2010 theme.
 
 == Changelog ==
+
+= 1.1.2 =
+* Fixed: CSS rules weren't a high enough priority in some themes, increase the specificity of the colours so they're not overridden
+* Added: New setting, lets you choose if search engines will index individual spots, set to no by default, prevents individual spots showing up in search listings ahead of the pages they're intended to appear on
 
 = 1.1.1 =
 * Added: Logged in users able to edit spots can now see an edit link when hovering over a spot on the frontend
