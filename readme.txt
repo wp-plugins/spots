@@ -3,8 +3,8 @@ Contributors: interconnectit, spectacula, sanchothefat, TJNowell
 Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
-Tested up to: 3.4.1
-Stable tag: 1.1.0
+Tested up to: 3.4.2
+Stable tag: 1.1.1
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
