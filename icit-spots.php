@@ -760,6 +760,33 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 			return $buttons;
 		}
+		function footer_edit_link_style(){
+			?><style>
+			.icit-spot-edit-link-holder {
+				position:relative;
+				width:100%;
+				height:0; background:transparent;
+			}
+			.spot .icit-spot-edit-link {
+				display:none;
+			}
+			.spot:hover .icit-spot-edit-link {
+				text-decoration:none;
+				position: relative;
+				top: 0;
+				background: black;
+				border-radius: 3px;
+				padding: 2px 6px;
+				color: white;
+				display: block;
+				width: 24px;
+				margin-left: -36px;
+				font-size:14px;
+				line-height:24px;
+				left: 100%;
+			}
+			</style><?php
+		}
 
 
 		function widget( $args, $instance ) {
@@ -776,13 +803,21 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			if ( empty( $content ) )
 				return;
 
+			$editlink = '';
+			if(is_user_logged_in() && current_user_can('edit_post',$id)){
+				add_action('wp_footer',array(&$this,'footer_edit_link_style'));
+				$editlink = '<div class="icit-spot-edit-link-holder"><a class="icit-spot-edit-link" href="'.get_edit_post_link($id).'">Edit</a></div>';
+			}
+
 			if ( ! empty( $template ) )
 				$before_widget = preg_replace( "/class=\"/", 'class="spot-'. $template .' ', $before_widget );
 
 			echo $before_widget;
+			echo $editlink;
 			if ( $title )
 				echo $before_title . $title . $after_title;
 				echo $content;
+				
 			echo $after_widget;
 		}
 
