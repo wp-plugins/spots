@@ -137,6 +137,11 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.1.3 =
+* Fixed: Spot edit buttons on the frontend would appear underneath other items making them unclickable
+* Modified: Edit buttons are now labeled "Edit Spots" rather than just Edit
+* Added: Shortcodes in content now have the same edit buttons on hover that widgets have
+
 = 1.1.2 =
 * Fixed: CSS rules weren't a high enough priority in some themes, increase the specificity of the colours so they're not overridden
 * Added: New setting, lets you choose if search engines will index individual spots, set to no by default, prevents individual spots showing up in search listings ahead of the pages they're intended to appear on

@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://wordpress.org/extend/plugins/spots/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
-Version: 1.1.2
+Version: 1.1.3
 Author URI: http://interconnectit.com
 */
 
@@ -294,7 +294,18 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			if ( get_post_type( ) == SPOTS_POST_TYPE )
 				return;
 
-			return icit_get_spot( $id, $template );
+			$spot_content = icit_get_spot( $id, $template );
+
+			$editlink = '';
+			if(is_user_logged_in() && current_user_can('edit_post',$id)){
+				$editlink = '<div class="icit-spot-edit-link-holder"><a class="icit-spot-edit-link" href="'.get_edit_post_link($id).'">Edit Spot</a></div>';
+				$spot_content = '<div class="spot">'.$editlink.$spot_content;
+				$spot_content .='</div>';
+				add_action('wp_footer','spots_footer_edit_link_style');
+				
+			}
+
+			return $spot_content;
 		}
 
 
@@ -445,8 +456,11 @@ if ( ! class_exists( 'icit_spots' ) ) {
 					background-image: url( <?php echo esc_url( SPOTS_URL ) ?>/assets/icon.png );
 					background-repeat:no-repeat;
 					background-color:transparent;
+					-webkit-background-size: 100%;
+					background-size:100%;
 					background-position:0 0;
 				}
+
 
 				#wpbody-content span.mce_addspotbutton:hover	{ background-position: 0 -20px }
 				#adminmenu #menu-posts-spot div.wp-menu-image 		{ background-position: -20px 0 }
@@ -596,7 +610,35 @@ if ( ! class_exists( 'icit_spots_mce_button' ) ) {
 
 }
 
-
+function spots_footer_edit_link_style(){
+	?><style>
+	.icit-spot-edit-link-holder {
+		position:relative;
+		width:100%;
+		height:0;
+		background:transparent;
+		z-index:2000;
+	}
+	.spot .icit-spot-edit-link-holder .icit-spot-edit-link {
+		display:none;
+	}
+	.spot:hover .icit-spot-edit-link-holder .icit-spot-edit-link {
+		text-decoration:none;
+		position: relative;
+		top: 0;
+		background: black;
+		border-radius: 3px;
+		padding: 2px 6px;
+		color: white !important;
+		display: block;
+		width: 54px;
+		margin-left: -66px;
+		font-size:14px;
+		line-height:24px;
+		left: 100%;
+	}
+	</style><?php
+}
 if ( ! class_exists( 'Spot_Widget' ) ) {
 
 	class Spot_Widget extends WP_Widget {
@@ -785,34 +827,6 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 			return $buttons;
 		}
-		function footer_edit_link_style(){
-			?><style>
-			.icit-spot-edit-link-holder {
-				position:relative;
-				width:100%;
-				height:0;
-				background:transparent;
-			}
-			.spot .icit-spot-edit-link-holder .icit-spot-edit-link {
-				display:none;
-			}
-			.spot:hover .icit-spot-edit-link-holder .icit-spot-edit-link {
-				text-decoration:none;
-				position: relative;
-				top: 0;
-				background: black;
-				border-radius: 3px;
-				padding: 2px 6px;
-				color: white !important;
-				display: block;
-				width: 24px;
-				margin-left: -36px;
-				font-size:14px;
-				line-height:24px;
-				left: 100%;
-			}
-			</style><?php
-		}
 
 
 		function widget( $args, $instance ) {
@@ -831,8 +845,8 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 			$editlink = '';
 			if(is_user_logged_in() && current_user_can('edit_post',$id)){
-				add_action('wp_footer',array(&$this,'footer_edit_link_style'));
-				$editlink = '<div class="icit-spot-edit-link-holder"><a class="icit-spot-edit-link" href="'.get_edit_post_link($id).'">Edit</a></div>';
+				add_action('wp_footer','spots_footer_edit_link_style');
+				$editlink = '<div class="icit-spot-edit-link-holder"><a class="icit-spot-edit-link" href="'.get_edit_post_link($id).'">Edit Spot</a></div>';
 			}
 
 			if ( ! empty( $template ) )
