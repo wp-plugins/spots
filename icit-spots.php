@@ -461,6 +461,20 @@ if ( ! class_exists( 'icit_spots' ) ) {
 					background-position:0 0;
 				}
 
+				@media
+		        only screen and (-webkit-min-device-pixel-ratio: 1.5),
+		        only screen and (   min--moz-device-pixel-ratio: 1.5),
+		        only screen and (     -o-min-device-pixel-ratio: 3/2),
+		        only screen and (        min-device-pixel-ratio: 1.5),
+		        only screen and (                min-resolution: 1.5dppx) {
+					#wpbody-content span.mce_addspotbutton,
+					#adminmenu #menu-posts-spot div.wp-menu-image,
+					#icon-edit.icon32-posts-spot {
+						-webkit-background-size: 80px 56px;
+	                	-moz-background-size: 80px 56px;
+	                	background-size: 80px 56px;
+					}
+				}
 
 				#wpbody-content span.mce_addspotbutton:hover	{ background-position: 0 -20px }
 				#adminmenu #menu-posts-spot div.wp-menu-image 		{ background-position: -20px 0 }
