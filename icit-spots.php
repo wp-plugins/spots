@@ -456,8 +456,6 @@ if ( ! class_exists( 'icit_spots' ) ) {
 					background-image: url( <?php echo esc_url( SPOTS_URL ) ?>/assets/icon.png );
 					background-repeat:no-repeat;
 					background-color:transparent;
-					-webkit-background-size: 100%;
-					background-size:100%;
 					background-position:0 0;
 				}
 
@@ -470,9 +468,9 @@ if ( ! class_exists( 'icit_spots' ) ) {
 					#wpbody-content span.mce_addspotbutton,
 					#adminmenu #menu-posts-spot div.wp-menu-image,
 					#icon-edit.icon32-posts-spot {
-						-webkit-background-size: 80px 56px;
-	                	-moz-background-size: 80px 56px;
-	                	background-size: 80px 56px;
+						-webkit-background-size: 85px 56px;
+	                	-moz-background-size: 85px 56px;
+	                	background-size: 85px 56px;
 					}
 				}
 
