@@ -4,7 +4,7 @@ Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -22,7 +22,7 @@ The plugin is prepared for translation, if you'd like to drop us a line about yo
 
 = The install =
 1. You can install the plugin using the auto-install tool from the WordPress back-end.
-2. To manually install, upload the folder `/icit-spots/` to `/wp-content/plugins/` directory.
+2. To manually install, upload the folder `/spots/` to `/wp-content/plugins/` directory.
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. You should now see the Spots widget show up under 'widgets' menu. Drop that widget into a sidebar and you can immediately create Spots.
 5. You should also now see a new post type appear called Spots in your WordPress back-end.  You can create Spots here for use later or in development.
@@ -139,6 +139,7 @@ If you have a featured image, your theme can use this for display options.  If y
 
 = 1.1.3 =
 * Fixed: Spot edit buttons on the frontend would appear underneath other items making them unclickable
+* Fixed: The spots menu icon under iOS and other high density displays now display correctly
 * Modified: Edit buttons are now labeled "Edit Spots" rather than just Edit
 * Added: Shortcodes in content now have the same edit buttons on hover that widgets have
 
