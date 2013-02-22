@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://wordpress.org/extend/plugins/spots/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
-Version: 1.1.3
+Version: 1.1.4
 Author URI: http://interconnectit.com
 */
 
@@ -33,26 +33,29 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 	class icit_spots {
 
+		private $orig_shortcode_tags;
+
 		function icit_spots ( ) {
 
-			add_action( 'init', array( &$this, 'post_type' ) );
-			add_action( 'admin_head', array( &$this, 'admin_head' ) );
-			add_action( 'admin_init', array( &$this, 'do_once' ), 9000 );
+			add_action( 'init', array( $this,'post_type' ) );
+			add_action( 'admin_head', array( $this,'admin_head' ) );
+			add_action( 'admin_init', array( $this,'do_once' ), 9000 );
 			add_action( 'do_once_icit_spots', 'flush_rewrite_rules' );
 
-			add_action( 'save_post', array( &$this, 'update_cache' ), 10, 2 );
-			add_action( 'delete_post', array( &$this, 'clean_cache' ) );
-			add_action( 'wp_ajax_find-spot', array( &$this, 'ajax_find_spot' ), 10 );
+			add_action( 'save_post', array( $this,'update_cache' ), 10, 2 );
+			add_action( 'delete_post', array( $this,'clean_cache' ) );
+			add_action( 'wp_ajax_find-spot', array( $this,'ajax_find_spot' ), 10 );
 			add_action( 'widgets_init', array( 'Spot_Widget', '_init' ) ); // initialise the widget
 
 			if(get_option('spots_norobots',1) == 1){
-				add_action( 'wp_head', array( &$this, 'norobots_check' ) );
+				add_action( 'wp_head', array( $this,'norobots_check' ) );
 			}
 
-			add_shortcode( 'icitspot', array( &$this, 'shortcode') );
+			// shortcode
+			add_filter( 'the_content', array( $this, 'late_shortcode' ), 9999999 );
 
-			register_deactivation_hook( __FILE__, array( &$this, 'deactivation' ) );
-			register_activation_hook( __FILE__, array( &$this, 'activation' ) );
+			register_deactivation_hook( __FILE__, array( $this,'deactivation' ) );
+			register_activation_hook( __FILE__, array( $this,'activation' ) );
 		}
 
 
@@ -123,8 +126,8 @@ if ( ! class_exists( 'icit_spots' ) ) {
 					<?php
 				}
 			}
-			
-			
+
+
 		}
 
 
@@ -192,7 +195,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				'hierarchical' => false,
 				'supports' => array( 'title', 'editor', 'thumbnail', 'custom-fields', 'revisions' ),
 				'taxonomies' => array( ),
-				'register_meta_box_cb' => array( &$this, 'meta_boxes' ),
+				'register_meta_box_cb' => array( $this,'meta_boxes' ),
 				'_edit_link' => 'post.php?post=%d&amp;post_type=' . SPOTS_POST_TYPE // generally frowned on but needs some custom CSS
 				) );
 
@@ -256,7 +259,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			remove_meta_box( 'submitdiv', SPOTS_POST_TYPE, 'side' );
 
 			add_meta_box( 'submitdiv', __( 'Save' ), 'post_submit_meta_box', SPOTS_POST_TYPE, 'side', 'low' );
-			add_meta_box( 'pageparentdiv', __( 'Template' ), array( &$this, 'attributes_meta_box' ), SPOTS_POST_TYPE, 'side', 'high' );
+			add_meta_box( 'pageparentdiv', __( 'Template' ), array( $this,'attributes_meta_box' ), SPOTS_POST_TYPE, 'side', 'high' );
 			add_meta_box( 'postimagediv', __( 'Featured Image' ), 'post_thumbnail_meta_box', SPOTS_POST_TYPE, 'side', 'high' );
 		}
 
@@ -283,26 +286,61 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		}
 
 
-		// shortcode
+		/**
+		 * Late content filter to add, parse and remove the spot shortcode to
+		 * prevent  downstream interactions with other plugins
+		 *
+		 * @param string $content The post content
+		 *
+		 * @return string
+		 */
+		function late_shortcode( $content ) {
+			global $shortcode_tags, $post;
+
+			// Back up current registered shortcodes and clear them all out
+			if ( empty( $this->orig_shortcode_tags ) )
+				$this->orig_shortcode_tags = $shortcode_tags;
+			remove_all_shortcodes();
+
+			add_shortcode( 'icitspot', array( $this, 'shortcode' ) );
+
+			// Do the shortcode (only the [embed] one is registered)
+			$content = do_shortcode( $content );
+
+			remove_shortcode( 'icitspot' );
+
+			// Put the original shortcodes back
+			$shortcode_tags = $this->orig_shortcode_tags;
+
+			return $content;
+		}
+
+
+		/**
+		 * Shortcode that outputs a spot
+		 *
+		 * @param string $atts Attribute string to be passed to shortcode_atts
+		 *
+		 * @return string    Shortcode output
+		 */
 		function shortcode( $atts ) {
-			extract( shortcode_atts( array(
+			$atts = shortcode_atts( array(
 				'id' => false,
 				'template' => ''
-			), $atts ) );
+			), $atts );
+
+			$spot_id = $atts[ 'id' ];
+			$template = $atts[ 'template' ];
 
 			// insanity check
 			if ( get_post_type( ) == SPOTS_POST_TYPE )
 				return;
 
-			$spot_content = icit_get_spot( $id, $template );
+			$spot_content = icit_get_spot( $spot_id, $template );
 
-			$editlink = '';
-			if(is_user_logged_in() && current_user_can('edit_post',$id)){
-				$editlink = '<div class="icit-spot-edit-link-holder"><a class="icit-spot-edit-link" href="'.get_edit_post_link($id).'">Edit Spot</a></div>';
-				$spot_content = '<div class="spot">'.$editlink.$spot_content;
-				$spot_content .='</div>';
-				add_action('wp_footer','spots_footer_edit_link_style');
-				
+			// spot wrapper for containing edit link
+			if( is_user_logged_in() && current_user_can( 'edit_post', $spot_id ) ) {
+				$spot_content = '<div class="spot">' . $spot_content . '</div>';
 			}
 
 			return $spot_content;
@@ -487,6 +525,58 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			</style>
 			<?php
 		}
+
+		function edit_link( $spot_id, $echo = true ) {
+
+			$edit_link = '';
+
+			if( is_user_logged_in() && current_user_can( 'edit_post', $spot_id ) ) {
+				add_action( 'wp_footer', array( 'icit_spots', 'edit_link_style' ) );
+				$edit_link = '<div class="icit-spot-edit-link-holder"><a class="icit-spot-edit-link" href="' . get_edit_post_link( $spot_id ) . '">' . __( 'Edit Spot', SPOTS_DOM ) . '</a></div>';
+			}
+
+			if ( $echo )
+				echo $edit_link;
+			return $edit_link;
+		}
+
+		function edit_link_style(){
+			?>
+			<style>
+			.icit-spot-edit-link-holder {
+				position: relative;
+				height: 0;
+				background: transparent;
+				z-index: 2000;
+			}
+			.icit-spot-edit-link-holder .icit-spot-edit-link {
+				display: none;
+				opacity: 0;
+				position: absolute;
+				top: 0;
+				left: 0;
+				text-decoration: none !important;
+				background: #000 !important;
+				-webkit-border-radius: 3px;
+				-moz-border-radius: 3px;
+				-ms-border-radius: 3px;
+				border-radius: 3px;
+				padding: 2px 6px !important;
+				color: #fff !important;
+				font-size: 14px !important;
+				font-weight: bold !important;
+				line-height: 16px !important;
+				-webkit-transition: opacity .5s ease-in;
+				-moz-transition: opacity .5s ease-in;
+				-ms-transition: opacity .5s ease-in;
+				transition: opacity .5s ease-in;
+			}
+			.spot:hover .icit-spot-edit-link-holder .icit-spot-edit-link {
+				display: block;
+				opacity: 1;
+			}
+			</style><?php
+		}
 	}
 }
 
@@ -496,8 +586,8 @@ if ( ! class_exists( 'icit_spots_mce_button' ) ) {
 	class icit_spots_mce_button {
 
 		function icit_spots_mce_button ( ) {
-			add_action( 'admin_init', array( &$this, 'the_button' ) );
-			add_action( 'wp_ajax_spots_mce_popup', array( &$this, 'mce_popup' ) );
+			add_action( 'admin_init', array( $this,'the_button' ) );
+			add_action( 'wp_ajax_spots_mce_popup', array( $this,'mce_popup' ) );
 
 			// Register some scripts
 			wp_register_script( 'autocomplete', trailingslashit( SPOTS_URL ) . 'assets/js/jquery.autocomplete.js', array( 'jquery' ) );
@@ -512,7 +602,7 @@ if ( ! class_exists( 'icit_spots_mce_button' ) ) {
 
 			if ( ! ( ! empty( $typenow ) && $typenow == SPOTS_POST_TYPE ) && ( current_user_can( 'edit_posts' ) || current_user_can( 'edit_pages' ) ) && true == get_user_option( 'rich_editing' ) ) {
 				add_filter( 'mce_external_plugins', array(&$this, 'create_extra_mce_plugin' ) );
-				add_filter( 'mce_buttons', array( &$this, 'create_extra_mce_button' ) );
+				add_filter( 'mce_buttons', array( $this,'create_extra_mce_button' ) );
 			}
 		}
 
@@ -622,35 +712,7 @@ if ( ! class_exists( 'icit_spots_mce_button' ) ) {
 
 }
 
-function spots_footer_edit_link_style(){
-	?><style>
-	.icit-spot-edit-link-holder {
-		position:relative;
-		width:100%;
-		height:0;
-		background:transparent;
-		z-index:2000;
-	}
-	.spot .icit-spot-edit-link-holder .icit-spot-edit-link {
-		display:none;
-	}
-	.spot:hover .icit-spot-edit-link-holder .icit-spot-edit-link {
-		text-decoration:none;
-		position: relative;
-		top: 0;
-		background: black;
-		border-radius: 3px;
-		padding: 2px 6px;
-		color: white !important;
-		display: block;
-		width: 54px;
-		margin-left: -66px;
-		font-size:14px;
-		line-height:24px;
-		left: 100%;
-	}
-	</style><?php
-}
+
 if ( ! class_exists( 'Spot_Widget' ) ) {
 
 	class Spot_Widget extends WP_Widget {
@@ -672,9 +734,9 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			$control_ops = array( 'width' => 450 );
 			$this->WP_Widget( SPOTS_POST_TYPE, __( 'Spot', SPOTS_DOM ), $widget_ops, $control_ops );
 
-			add_action( 'admin_init', array( &$this, 'admin_init' ), 100 );
-			add_action( 'admin_footer', array( &$this, 'admin_footer' ), 3001 );
-			add_action( 'wp_ajax_set-spot-thumbnail', array( &$this, 'set_spot_thumbnail' ) );
+			add_action( 'admin_init', array( $this,'admin_init' ), 100 );
+			add_action( 'admin_footer', array( $this,'admin_footer' ), 3001 );
+			add_action( 'wp_ajax_set-spot-thumbnail', array( $this,'set_spot_thumbnail' ) );
 
 		}
 
@@ -685,7 +747,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		 * @return Null
 		 */
 		function admin_init( ) {
-			global $pagenow;
+			global $pagenow, $wp_version;
 
 			if ( $pagenow != 'widgets.php' )
 				return;
@@ -698,8 +760,13 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			wp_enqueue_script( 'spots_script', SPOTS_URL . '/assets/js/spots.js', array( 'jquery' ), '2.0', true );
 			wp_enqueue_style( 'spots_style', SPOTS_URL . '/assets/spots.css' );
 
-			add_thickbox( );
-			wp_enqueue_script( 'media-upload' );
+			if ( version_compare( $wp_version, '3.5', '<' ) ) {
+				add_thickbox( );
+				wp_enqueue_script( 'media-upload' );
+			} else {
+				wp_enqueue_media();
+			}
+
 
 			if ( user_can_richedit( ) ) {
 				wp_enqueue_script( 'post' );
@@ -741,25 +808,27 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				include( ABSPATH . 'wp-admin/includes/media.php' ); ?>
 
 			<div id="spot_hidden_editors" class="hidden"><?php
-				add_filter( 'mce_buttons', array( &$this, 'mce_buttons' ) );
+
+				add_filter( 'mce_buttons', array( $this,'mce_buttons' ) );
 
 				if ( function_exists( 'wp_editor' ) ) {
 					// WP 3.3+
 					$css = apply_filters( 'spots_editor_css', null );
-					wp_editor( '', $this->editor_id, array( 'media_buttons' => false, 'dfw' => false, 'tinymce' => array( 'height' => 300, 'content_css' => ( ! empty( $css ) ? get_bloginfo( 'template_url' ) . $css : null ) ) ) );
+					wp_editor( '', $this->editor_id, array( 'media_buttons' => true, 'dfw' => false, 'tinymce' => array( 'height' => 300, 'content_css' => ( ! empty( $css ) ? get_bloginfo( 'template_url' ) . $css : null ) ) ) );
 				}
 				else {
+
 					// Older WP
-					add_filter( 'tiny_mce_before_init', array( &$this, 'steal_settings' ), 10 );
+					add_filter( 'tiny_mce_before_init', array( $this,'steal_settings' ), 10 );
 					wp_tiny_mce( false, array( 'icit_id' => $this->editor_id ) );
-					remove_filter( 'tiny_mce_before_init', array( &$this, 'steal_settings' ), 10 );
+					remove_filter( 'tiny_mce_before_init', array( $this,'steal_settings' ), 10 );
 
 					// Drop the settings into a var I can access from the JS
 					if ( ! empty( $this->settings ) ) { ?>
 						<script type="text/javascript">
 						/* <![CDATA[ */
 						if ( typeof( icit_mce_settings ) !== 'object' )
-							var icit_mce_settings = {}
+							var icit_mce_settings = {};
 
 						icit_mce_settings.<?php echo esc_js( $this->editor_id ); ?>  = {<?php echo $this->settings; ?>};
 						/* ]]> */
@@ -768,11 +837,11 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 				}
 
-				remove_filter( 'mce_buttons', array( &$this, 'mce_buttons' ) ); ?>
+				remove_filter( 'mce_buttons', array( $this,'mce_buttons' ) ); ?>
 
 				<div class="spot-media-buttons wp-media-buttons hide-if-no-js hidden"><?php
 					// This is hidden here for me to clone from the JS as needed.
-					do_action( 'media_buttons' ); ?>
+					do_action( 'media_buttons', $this->editor_id ); ?>
 				</div>
 			</div><?php
 		}
@@ -834,8 +903,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				'|',
 				'justifyleft',
 				'justifycenter',
-				'justifyright',
-				'code' ) );
+				'justifyright' ) );
 
 			return $buttons;
 		}
@@ -844,22 +912,16 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		function widget( $args, $instance ) {
 			extract( $args );
 			$title = apply_filters( 'widget_title', $instance[ 'title' ] );
-			$id = intval( $instance[ 'id' ] );
+			$spot_id = intval( $instance[ 'id' ] );
 			$template = $instance[ 'template' ];
 
-			if ( empty( $id ) )
+			if ( empty( $spot_id ) )
 				return;
 
-			$content = icit_get_spot( ( int )$id, ( ! empty( $template ) ? $template : '' ) );
+			$content = icit_get_spot( ( int )$spot_id, ( ! empty( $template ) ? $template : '' ) );
 
 			if ( empty( $content ) )
 				return;
-
-			$editlink = '';
-			if(is_user_logged_in() && current_user_can('edit_post',$id)){
-				add_action('wp_footer','spots_footer_edit_link_style');
-				$editlink = '<div class="icit-spot-edit-link-holder"><a class="icit-spot-edit-link" href="'.get_edit_post_link($id).'">Edit Spot</a></div>';
-			}
 
 			if ( ! empty( $template ) )
 				$before_widget = preg_replace( "/class=\"/", 'class="spot-'. $template .' ', $before_widget );
@@ -869,7 +931,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			if ( $title )
 				echo $before_title . $title . $after_title;
 				echo $content;
-				
+
 			echo $after_widget;
 		}
 
@@ -897,6 +959,8 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 
 		function form( $instance ) {
+			global $wp_version;
+
 			extract( wp_parse_args( ( array )$instance, array(
 				'title' => '',
 				'id' => '',
@@ -922,7 +986,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				</p> <?php
 			} else { ?>
 
-				<input class="spot-id" type="hidden" name="<?php echo $this->get_field_name( 'id' ); ?>" value="<?php esc_attr_e( $id ); ?>" /> <?php
+				<input class="spot-id" type="hidden" name="<?php echo $this->get_field_name( 'id' ); ?>" value="<?php echo esc_attr( $id ); ?>" /> <?php
 			}
 
 			if ( count( $spots ) && ( empty( $id ) || $id == 0 ) ) { ?>
@@ -940,15 +1004,19 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 			if ( isset( $spot_post ) ) { ?>
 
-				<div class="editorcontainer">
+				<div class="editorcontainer wp-editor-wrap">
 					<textarea cols="40" rows="10" class="widefat mceme" id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>"><?php echo wp_richedit_pre( $spot_post->post_content ); ?></textarea>
 				</div>
+
+				<?php if ( version_compare( $wp_version, '3.5', '<' ) ) { ?>
 
 				<div class="spot-featured-image"><?php
 				// show featured image if set
 				if ( current_theme_supports( 'post-thumbnails' ) )
 					echo $this->_wp_post_thumbnail_html( null, $spot_post->ID ); ?>
 				</div><?php
+
+				}
 			}
 
 			if ( $templates = icit_spots::get_templates( ) ) { ?>
@@ -1076,12 +1144,12 @@ if ( ! function_exists( 'spot_post_exists' ) ) {
  *
  * @since 0.1
  *
- * @param string|int $id Post ID or name
+ * @param string|int $spot_id Post ID or name
  * @param string $template Optional template slug eg. 'large' will load spot-large.php from your theme folder if it exists.
  * @return bool false if no spot found or spot is in draft mode and user does not have permission or HTML if spot found.
  */
-function icit_spot( $id = false, $template = '' ) {
-	icit_get_spot( $id, $template, true );
+function icit_spot( $spot_id = false, $template = '' ) {
+	icit_get_spot( $spot_id, $template, true );
 }
 
 /**
@@ -1089,25 +1157,25 @@ function icit_spot( $id = false, $template = '' ) {
  *
  * @since 0.1
  *
- * @param string|int $id Post ID or name
+ * @param string|int $spot_id Post ID or name
  * @param string $template Optional template slug eg. 'large' will load spot-large.php from your theme folder if it exists.
  * @param bool $echo If set to true the spot will be echoed before it is returned.
  * @return bool False if no spot found or spot is in draft mode and user does not have permission or HTML if spot found.
  */
-function icit_get_spot( $id = false, $template = '', $echo = false ) {
+function icit_get_spot( $spot_id = false, $template = '', $echo = false ) {
 	global $post; // So we can set the post var and all the functions like "the_title" pick it up.
 
 	// need to know what we're dealing with, eg. is it a post ID or a name/title
-	if ( ! $id )
+	if ( ! $spot_id )
 		return;
 
 	$is_id = false;
 	$is_name = false;
 
-	if ( is_numeric( $id ) && $id > 0 ) {
+	if ( is_numeric( $spot_id ) && $spot_id > 0 ) {
 		$is_id = true;
 	}
-	elseif ( is_string( $id ) ) {
+	elseif ( is_string( $spot_id ) ) {
 		$is_name = true;
 	}
 	if ( ! $is_id && ! $is_name ) {
@@ -1117,10 +1185,10 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 	// check if we have an existing spot (only when a name is supplied)
 	if ( $is_name ) {
 
-		$name = $id;
+		$name = $spot_id;
 
-		// create the spot if it doesn't exist or assign it's post ID to $id
-		if ( 0 == ( $id = spot_post_exists( $name ) ) ) {
+		// create the spot if it doesn't exist or assign it's post ID to $spot_id
+		if ( 0 == ( $spot_id = spot_post_exists( $name ) ) ) {
 			// create the spot and some useful place holder text if it doesn't exist
 			$new_id = wp_insert_post( array(
 				'post_title' => $name,
@@ -1128,7 +1196,7 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 				'post_status' => 'draft'
 			) );
 
-			$id = wp_update_post( array(
+			$spot_id = wp_update_post( array(
 				'ID' => $new_id,
 				'post_content' => '<div><a href="'. get_edit_post_link( $new_id ) .'">'. sprintf( __( 'Click here to edit the %s spot.' ), esc_html( $name ) ) .'</a></div>'
 			) );
@@ -1137,13 +1205,13 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 
 	// allow template override
 	if ( empty( $template ) ) {
-		$post_template = get_post_meta( $id, '_spot_part', true ); // Get the default for this spot
+		$post_template = get_post_meta( $spot_id, '_spot_part', true ); // Get the default for this spot
 		if ( ! empty( $post_template ) )
 			$template = $post_template;
 	}
 
 	// we need a transient pointer - can't be more than 64 chars
-	$cache_id = 'spot_' . $id . ( ! empty( $template ) ?  '_' . md5( $template ) : '' );
+	$cache_id = 'spot_' . $spot_id . ( ! empty( $template ) ?  '_' . md5( $template ) : '' );
 
 	// check cache
 	$cache = false;
@@ -1160,8 +1228,8 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 		$output = '';
 
 		// get the content of the widget
-		if ( is_numeric( $id ) )
-			$post = get_post( $id );
+		if ( is_numeric( $spot_id ) )
+			$post = get_post( $spot_id );
 
 		if ( ! isset( $post ) )
 			return;
@@ -1170,6 +1238,9 @@ function icit_get_spot( $id = false, $template = '', $echo = false ) {
 
 		// output buffer needed as we want to use "the loop" but need to support shortcode
 		ob_start( );
+
+		// prepend the spot edit link
+		icit_spots::edit_link( $spot_id );
 
 		do_action( 'spot-before', $post );
 

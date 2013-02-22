@@ -3,8 +3,8 @@ Contributors: interconnectit, spectacula, sanchothefat, TJNowell, chiquita
 Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
-Tested up to: 3.4.2
-Stable tag: 1.1.3
+Tested up to: 3.5.1
+Stable tag: 1.1.4
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -136,6 +136,10 @@ If you have a featured image, your theme can use this for display options.  If y
 6. A Template Tag replacement of content in the footer of the 2010 theme.
 
 == Changelog ==
+
+= 1.1.4 =
+* Fixed: Compatibility issue with various footnote plugins that modify the contet after do_shortcode has run - thanks to Nick Toye for spotting it
+* Modified: 
 
 = 1.1.3 =
 * Fixed: Spot edit buttons on the frontend would appear underneath other items making them unclickable
