@@ -4,7 +4,7 @@ Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -137,12 +137,14 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.1.5 =
+* Modified: 'Edit spot' link styling like an admin button and appears within spot area incase of `overflow:hidden;`.
+* Added: 'Edit spot' link also appears on spots referenced directly in template
+
 = 1.1.4 =
 * Fixed: Compatibility issue with various plugins that modify the content after do_shortcode has run - thanks to @NickToye for spotting it
 * Removed: Ability to view featured image in widget screen in WP 3.5 or above. You can still set it in the full editor and in the add media popup
 * Fixed: Empty paragraph was being inserted when moving a widget around
-* Modified: 'Edit spot' link styling improved and appears within spot area incase of `overflow:hidden;`.
-* Added: 'Edit spot' link also appears on spots referenced directly in template
 * Added: Spots no longer cached if current logged in user can edit them
 
 = 1.1.3 =
