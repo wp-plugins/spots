@@ -138,8 +138,12 @@ If you have a featured image, your theme can use this for display options.  If y
 == Changelog ==
 
 = 1.1.4 =
-* Fixed: Compatibility issue with various footnote plugins that modify the contet after do_shortcode has run - thanks to Nick Toye for spotting it
-* Modified: 
+* Fixed: Compatibility issue with various plugins that modify the content after do_shortcode has run - thanks to @NickToye for spotting it
+* Removed: Ability to view featured image in widget screen in WP 3.5 or above. You can still set it in the full editor and in the add media popup
+* Fixed: Empty paragraph was being inserted when moving a widget around
+* Modified: 'Edit spot' link styling improved and appears within spot area incase of `overflow:hidden;`.
+* Added: 'Edit spot' link also appears on spots referenced directly in template
+* Added: Spots no longer cached if current logged in user can edit them
 
 = 1.1.3 =
 * Fixed: Spot edit buttons on the frontend would appear underneath other items making them unclickable
@@ -220,3 +224,9 @@ Fixed problem with spots sharing a name with a page or post resulting in the wro
 
 = 1.0.5 =
 Added support for revisions to the spots post type, idea from Doug Smith (http://smithsrus.com/).
+
+= 1.1.4 =
+Added support for WP 3.5 media uploader but had to remove ability to view featured image in widget edit mode.
+Fixed compatibility issues with certain plugins that modify post content after shortcodes have run, bug spotted by Nick Toye (http://www.pixelsandcode.co.uk/).
+Spots are no longer cached for logged in users who can edit the spot.
+Removed double `.spot` class wrapper possibility with edit link wrapper.

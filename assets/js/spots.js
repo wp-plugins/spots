@@ -13,7 +13,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 					return; // I expect tiny would have been initiated by now.
 
 				var ta = $( '#' + id ), // The textarea
-					content = ta.val( ),
+					content = $.trim( ta.val( ).replace( /^\&nbsp\;(?:[\r\n])+$/m, '' ) ), // remove empty 'paragraph' that appears & trim
 					spot_id = ta.parents( '.widget' ).find( '.spot-id' ).val();
 
 				if ( ta.not(':disabled').length && ta.parents( ':not(:hidden)' ).length && ! tinyMCE.getInstanceById( id ) ) {
@@ -71,7 +71,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 						tinyMCE.execCommand( 'mceRemoveControl', false, id );
 					}
 
-					//$( '#' + id ).prev( mb ).remove( );
+					$( '#' + id ).prev( mb ).remove( );
 				}
 
 			},
@@ -147,7 +147,10 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 
 			// set active editor
 			$( document ).on( 'click.focusmce', '.wp-media-buttons a', function() {
-				wpActiveEditor = $( this ).parents( '.wp-editor-wrap' ).find( 'textarea' ).attr( 'id' );
+
+				if ( typeof( 'wpActiveEditor' ) !== 'undefined' )
+					wpActiveEditor = $( this ).parents( '.wp-editor-wrap' ).find( 'textarea' ).attr( 'id' );
+
 			} );
 		}
 

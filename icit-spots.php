@@ -297,6 +297,9 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		function late_shortcode( $content ) {
 			global $shortcode_tags, $post;
 
+			if ( $post->post_type == SPOTS_POST_TYPE )
+				return $content;
+
 			// Back up current registered shortcodes and clear them all out
 			if ( empty( $this->orig_shortcode_tags ) )
 				$this->orig_shortcode_tags = $shortcode_tags;
@@ -304,7 +307,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 			add_shortcode( 'icitspot', array( $this, 'shortcode' ) );
 
-			// Do the shortcode (only the [embed] one is registered)
+			// Do the shortcode (only the [icitspot] one is registered)
 			$content = do_shortcode( $content );
 
 			remove_shortcode( 'icitspot' );
@@ -337,11 +340,6 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				return;
 
 			$spot_content = icit_get_spot( $spot_id, $template );
-
-			// spot wrapper for containing edit link
-			if( is_user_logged_in() && current_user_can( 'edit_post', $spot_id ) ) {
-				$spot_content = '<div class="spot">' . $spot_content . '</div>';
-			}
 
 			return $spot_content;
 		}
@@ -530,50 +528,98 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 			$edit_link = '';
 
-			if( is_user_logged_in() && current_user_can( 'edit_post', $spot_id ) ) {
-				add_action( 'wp_footer', array( 'icit_spots', 'edit_link_style' ) );
-				$edit_link = '<div class="icit-spot-edit-link-holder"><a class="icit-spot-edit-link" href="' . get_edit_post_link( $spot_id ) . '">' . __( 'Edit Spot', SPOTS_DOM ) . '</a></div>';
-			}
+			add_action( 'wp_footer', array( 'icit_spots', 'edit_link_style' ) );
+			$edit_link = '<div class="icit-spot-edit-link-holder"><a class="icit-spot-edit-link" href="' . get_edit_post_link( $spot_id ) . '">' . __( 'Edit Spot', SPOTS_DOM ) . '</a></div>';
 
 			if ( $echo )
 				echo $edit_link;
 			return $edit_link;
 		}
 
-		function edit_link_style(){
-			?>
+		function edit_link_style() { ?>
 			<style>
 			.icit-spot-edit-link-holder {
 				position: relative;
 				height: 0;
 				background: transparent;
-				z-index: 2000;
+				z-index: 9999999;
 			}
 			.icit-spot-edit-link-holder .icit-spot-edit-link {
-				display: none;
-				opacity: 0;
-				position: absolute;
-				top: 0;
-				left: 0;
+				display: none !important;
+				position: absolute !important;
+				top: 0 !important;
+				right: 0 !important;
+				/* WP button styling */
 				text-decoration: none !important;
-				background: #000 !important;
-				-webkit-border-radius: 3px;
-				-moz-border-radius: 3px;
-				-ms-border-radius: 3px;
-				border-radius: 3px;
-				padding: 2px 6px !important;
-				color: #fff !important;
-				font-size: 14px !important;
-				font-weight: bold !important;
-				line-height: 16px !important;
-				-webkit-transition: opacity .5s ease-in;
-				-moz-transition: opacity .5s ease-in;
-				-ms-transition: opacity .5s ease-in;
-				transition: opacity .5s ease-in;
+				font-size: 12px !important;
+				line-height: 23px !important;
+				height: 24px !important;
+				margin: 0 !important;
+				padding: 0 10px 1px !important;
+				cursor: pointer !important;
+				border-width: 1px !important;
+				border-style: solid !important;
+				-webkit-border-radius: 3px !important;
+				-webkit-appearance: none !important;
+				border-radius: 3px !important;
+				white-space: nowrap !important;
+				-webkit-box-sizing: border-box !important;
+				-moz-box-sizing:    border-box !important;
+				box-sizing:         border-box !important;
 			}
+			.icit-spot-edit-link-holder .icit-spot-edit-link::-moz-focus-inner {
+				border-width: 1px 0 !important;
+				border-style: solid none !important;
+				border-color: transparent !important;
+				padding: 0 !important;
+			}
+			.icit-spot-edit-link-holder .icit-spot-edit-link:active {
+				outline: none !important;
+			}
+			.icit-spot-edit-link-holder .icit-spot-edit-link {
+				background: #f3f3f3;
+				background-image: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#f4f4f4));
+				background-image: -webkit-linear-gradient(top, #fefefe, #f4f4f4);
+				background-image:    -moz-linear-gradient(top, #fefefe, #f4f4f4);
+				background-image:      -o-linear-gradient(top, #fefefe, #f4f4f4);
+				background-image:   linear-gradient(to bottom, #fefefe, #f4f4f4);
+				border-color: #bbb;
+				color: #333;
+				text-shadow: 0 1px 0 #fff;
+			}
+			.icit-spot-edit-link-holder .icit-spot-edit-link:hover,
+			.icit-spot-edit-link-holder .icit-spot-edit-link:focus {
+				background: #f3f3f3;
+				background-image: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#f3f3f3));
+				background-image: -webkit-linear-gradient(top, #fff, #f3f3f3);
+				background-image:    -moz-linear-gradient(top, #fff, #f3f3f3);
+				background-image:     -ms-linear-gradient(top, #fff, #f3f3f3);
+				background-image:      -o-linear-gradient(top, #fff, #f3f3f3);
+				background-image:   linear-gradient(to bottom, #fff, #f3f3f3);
+				border-color: #999;
+				color: #222;
+			}
+			.icit-spot-edit-link-holder .icit-spot-edit-link:focus {
+				-webkit-box-shadow: 1px 1px 1px rgba(0,0,0,.2);
+				box-shadow: 1px 1px 1px rgba(0,0,0,.2);
+			}
+			.icit-spot-edit-link-holder .icit-spot-edit-link:active {
+				background: #eee;
+				background-image: -webkit-gradient(linear, left top, left bottom, from(#f4f4f4), to(#fefefe));
+				background-image: -webkit-linear-gradient(top, #f4f4f4, #fefefe);
+				background-image:    -moz-linear-gradient(top, #f4f4f4, #fefefe);
+				background-image:     -ms-linear-gradient(top, #f4f4f4, #fefefe);
+				background-image:      -o-linear-gradient(top, #f4f4f4, #fefefe);
+				background-image:   linear-gradient(to bottom, #f4f4f4, #fefefe);
+				border-color: #999;
+				color: #333;
+				text-shadow: 0 -1px 0 #fff;
+				-webkit-box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.5 );
+				box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.5 );
+			}
+			.icit-spot-content:hover .icit-spot-edit-link-holder .icit-spot-edit-link,
 			.spot:hover .icit-spot-edit-link-holder .icit-spot-edit-link {
-				display: block;
-				opacity: 1;
+				display: inline-block !important;
 			}
 			</style><?php
 		}
@@ -737,7 +783,6 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			add_action( 'admin_init', array( $this,'admin_init' ), 100 );
 			add_action( 'admin_footer', array( $this,'admin_footer' ), 3001 );
 			add_action( 'wp_ajax_set-spot-thumbnail', array( $this,'set_spot_thumbnail' ) );
-
 		}
 
 
@@ -918,6 +963,9 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			if ( empty( $spot_id ) )
 				return;
 
+			if( ! is_admin() && is_user_logged_in() && current_user_can( 'edit_post', $spot_id ) )
+				add_action( 'wp_footer', array( 'icit_spots', 'edit_link_style' ) );
+
 			$content = icit_get_spot( ( int )$spot_id, ( ! empty( $template ) ? $template : '' ) );
 
 			if ( empty( $content ) )
@@ -927,7 +975,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				$before_widget = preg_replace( "/class=\"/", 'class="spot-'. $template .' ', $before_widget );
 
 			echo $before_widget;
-			echo $editlink;
+
 			if ( $title )
 				echo $before_title . $title . $after_title;
 				echo $content;
@@ -1215,9 +1263,10 @@ function icit_get_spot( $spot_id = false, $template = '', $echo = false ) {
 
 	// check cache
 	$cache = false;
-	if ( ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) ) {
+	$show_edit_link = is_user_logged_in() && current_user_can( 'edit_post', $spot_id );
+	if ( ! $show_edit_link && ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) )
 		$cache = get_transient( $cache_id );
-	}
+
 
 	if ( $cache && is_array( $cache ) && isset( $cache[ 'output' ] ) ) {
 		// set vars for final check
@@ -1240,7 +1289,10 @@ function icit_get_spot( $spot_id = false, $template = '', $echo = false ) {
 		ob_start( );
 
 		// prepend the spot edit link
-		icit_spots::edit_link( $spot_id );
+		if ( $show_edit_link ) {
+			echo '<div class="icit-spot-content">';
+			icit_spots::edit_link( $spot_id );
+		}
 
 		do_action( 'spot-before', $post );
 
@@ -1253,6 +1305,9 @@ function icit_get_spot( $spot_id = false, $template = '', $echo = false ) {
 		}
 
 		do_action( 'spot-after', $post );
+
+		if ( $show_edit_link )
+			echo '</div>';
 
 		$output = ob_get_clean( );
 		$status = $post->post_status;
