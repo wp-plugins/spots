@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://wordpress.org/extend/plugins/spots/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
-Version: 1.1.5
+Version: 1.1.6
 Author URI: http://interconnectit.com
 */
 
@@ -32,8 +32,6 @@ if ( ! class_exists( 'icit_spots' ) ) {
 	add_action( 'admin_init', array( 'icit_spots', 'settings' ) );
 
 	class icit_spots {
-
-		private $orig_shortcode_tags;
 
 		function icit_spots ( ) {
 
@@ -300,20 +298,13 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			if ( $post->post_type == SPOTS_POST_TYPE )
 				return $content;
 
-			// Back up current registered shortcodes and clear them all out
-			if ( empty( $this->orig_shortcode_tags ) )
-				$this->orig_shortcode_tags = $shortcode_tags;
-			remove_all_shortcodes();
-
 			add_shortcode( 'icitspot', array( $this, 'shortcode' ) );
 
 			// Do the shortcode (only the [icitspot] one is registered)
+			$content = shortcode_unautop( $content );
 			$content = do_shortcode( $content );
 
 			remove_shortcode( 'icitspot' );
-
-			// Put the original shortcodes back
-			$shortcode_tags = $this->orig_shortcode_tags;
 
 			return $content;
 		}
