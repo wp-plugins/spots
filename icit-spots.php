@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://wordpress.org/extend/plugins/spots/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
-Version: 1.1.6
+Version: 1.1.7
 Author URI: http://interconnectit.com
 */
 
@@ -1259,7 +1259,7 @@ function icit_get_spot( $spot_id = false, $template = '', $echo = false ) {
 		$cache = get_transient( $cache_id );
 
 
-	if ( $cache && is_array( $cache ) && isset( $cache[ 'output' ] ) ) {
+	if ( ! $show_edit_link && $cache && is_array( $cache ) && isset( $cache[ 'output' ] ) ) {
 		// set vars for final check
 		extract( $cache, EXTR_SKIP );
 
@@ -1303,7 +1303,7 @@ function icit_get_spot( $spot_id = false, $template = '', $echo = false ) {
 		$output = ob_get_clean( );
 		$status = $post->post_status;
 
-		if ( ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) ) {
+		if ( ! $show_edit_link && ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) ) {
 			// cache it
 			delete_transient( $cache_id );
 			set_transient( $cache_id, array( 'output' => $output, 'status' => $status ), SPOTS_CACHE_TIME );

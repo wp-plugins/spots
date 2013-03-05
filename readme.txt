@@ -137,6 +137,9 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.1.7 =
+* Fixed: edit links being cached in certain suituations
+
 = 1.1.6 =
 * Fixed: late run shortcodes in content not being run through shortcode_unautop()
 
