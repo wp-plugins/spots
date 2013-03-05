@@ -1303,10 +1303,11 @@ function icit_get_spot( $spot_id = false, $template = '', $echo = false ) {
 		$output = ob_get_clean( );
 		$status = $post->post_status;
 
-		if ( ! $show_edit_link && ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) ) {
+		if ( ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) ) {
 			// cache it
 			delete_transient( $cache_id );
-			set_transient( $cache_id, array( 'output' => $output, 'status' => $status ), SPOTS_CACHE_TIME );
+			if ( ! $show_edit_link )
+				set_transient( $cache_id, array( 'output' => $output, 'status' => $status ), SPOTS_CACHE_TIME );
 		}
 
 		// resume normal service
