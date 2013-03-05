@@ -1,0 +1,43 @@
+/* spots widget admin css */
+
+.widget[id*="spot"] .editorcontainer {
+    background: #fff;
+    border: 1px solid #dfdfdf;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    margin-bottom: 10px;
+}
+
+.widget[id*="spot"] textarea {
+    background: #fff;
+    width: 95%;
+}
+
+.widget[id*="spot"] .spot-media-buttons {
+	padding: 9px 0 6px;
+	background: #f7f7f7;
+	border-bottom: 1px solid #dfdfdf;
+}
+
+.widget[id*="spot"] .spot-media-buttons a {
+	color: #333333;
+    font-size: 12px;
+    text-decoration: none;
+    vertical-align: middle;
+	margin-left: 5px;
+}
+.widget[id*="spot"] .spot-media-buttons img {
+    padding: 0 4px;
+    vertical-align: middle;
+}
+
+.widget-inside .mceEditor table.mceLayout,
+.context-content-widget-admin .mceEditor table.mceLayout {
+	background-color: #fff;
+}
+
+.spot-media-buttons a {
+	cursor: pointer;
+}
+
