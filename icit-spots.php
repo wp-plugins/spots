@@ -164,21 +164,22 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 
 		function post_type( ) {
-			register_post_type( SPOTS_POST_TYPE, array(
-				'labels' => apply_filters( 'spot_post_type_labels', array(
-					'name' => _x( 'Spots', SPOTS_DOM ),
-					'singular_name' => _x( 'Spot', SPOTS_DOM ),
-					'add_new' => _x( 'Add New', SPOTS_DOM ),
-					'add_new_item' => __( 'Add New Spot', SPOTS_DOM ),
-					'edit_item' => __( 'Edit Spot', SPOTS_DOM ),
-					'new_item' => __( 'New Spot', SPOTS_DOM ),
-					'view_item' => __( 'View Spot', SPOTS_DOM ),
-					'search_items' => __( 'Search Spots', SPOTS_DOM ),
-					'not_found' =>  __( 'No Spots found', SPOTS_DOM ),
-					'not_found_in_trash' => __( 'No Spots found in Trash', SPOTS_DOM ),
-					'parent_item_colon' => '',
-					'menu_name' => __( 'Spots', SPOTS_DOM )
-					) ),
+			$labels = array(
+				'name' => _x( 'Spots', SPOTS_DOM ),
+				'singular_name' => _x( 'Spot', SPOTS_DOM ),
+				'add_new' => _x( 'Add New', SPOTS_DOM ),
+				'add_new_item' => __( 'Add New Spot', SPOTS_DOM ),
+				'edit_item' => __( 'Edit Spot', SPOTS_DOM ),
+				'new_item' => __( 'New Spot', SPOTS_DOM ),
+				'view_item' => __( 'View Spot', SPOTS_DOM ),
+				'search_items' => __( 'Search Spots', SPOTS_DOM ),
+				'not_found' =>  __( 'No Spots found', SPOTS_DOM ),
+				'not_found_in_trash' => __( 'No Spots found in Trash', SPOTS_DOM ),
+				'parent_item_colon' => '',
+				'menu_name' => __( 'Spots', SPOTS_DOM )
+			);
+			$args = array(
+				'labels' => apply_filters( 'spot_post_type_labels', $labels ),
 				'public' => true,
 				'publicly_queryable' => true,
 				'show_ui' => true,
@@ -195,7 +196,9 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				'taxonomies' => array( ),
 				'register_meta_box_cb' => array( $this,'meta_boxes' ),
 				'_edit_link' => 'post.php?post=%d&amp;post_type=' . SPOTS_POST_TYPE // generally frowned on but needs some custom CSS
-				) );
+			);
+			$args = apply_filters( 'spot_post_type_args', $args );
+			register_post_type( SPOTS_POST_TYPE, $args );
 
 			if ( is_admin( ) && isset( $_GET[ 'post_type' ] ) && $_GET[ 'post_type' ] == SPOTS_POST_TYPE ) {
 				// hide unecessary page elements
