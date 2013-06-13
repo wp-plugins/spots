@@ -17,7 +17,6 @@ if ( version_compare( $wp_version, '3.0', 'lt' ) )
 // Plugin constants
 
 if ( ! class_exists( 'icit_spots' ) ) {
-
 	require_once( 'includes/icit-plugin.php' );
 
 	icit_register_plugin( 'spots', __FILE__, array(
@@ -32,42 +31,40 @@ if ( ! class_exists( 'icit_spots' ) ) {
 	add_action( 'admin_init', array( 'icit_spots', 'settings' ) );
 
 	class icit_spots {
-
-		function icit_spots ( ) {
-
-			add_action( 'init', array( $this,'post_type' ) );
-			add_action( 'admin_head', array( $this,'admin_head' ) );
-			add_action( 'admin_init', array( $this,'do_once' ), 9000 );
+		public function __construct() {
+			add_action( 'init', array( $this, 'post_type' ) );
+			add_action( 'admin_head', array( $this, 'admin_head' ) );
+			add_action( 'admin_init', array( $this, 'do_once' ), 9000 );
 			add_action( 'do_once_icit_spots', 'flush_rewrite_rules' );
 
-			add_action( 'save_post', array( $this,'update_cache' ), 10, 2 );
-			add_action( 'delete_post', array( $this,'clean_cache' ) );
-			add_action( 'wp_ajax_find-spot', array( $this,'ajax_find_spot' ), 10 );
+			add_action( 'save_post', array( $this, 'update_cache' ), 10, 2 );
+			add_action( 'delete_post', array( $this, 'clean_cache' ) );
+			add_action( 'wp_ajax_find-spot', array( $this, 'ajax_find_spot' ), 10 );
 			add_action( 'widgets_init', array( 'Spot_Widget', '_init' ) ); // initialise the widget
 
-			if(get_option('spots_norobots',1) == 1){
-				add_action( 'wp_head', array( $this,'norobots_check' ) );
+			if ( get_option( 'spots_norobots', 1 ) == 1 ) {
+				add_action( 'wp_head', array( $this, 'norobots_check' ) );
 			}
 
 			// shortcode
 			add_filter( 'the_content', array( $this, 'late_shortcode' ), 9999999 );
 
-			register_deactivation_hook( __FILE__, array( $this,'deactivation' ) );
-			register_activation_hook( __FILE__, array( $this,'activation' ) );
+			register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
+			register_activation_hook( __FILE__, array( $this, 'activation' ) );
 		}
 
 
 		/*
 		 Done late enough that the constants can be overridden with the theme.
 		*/
-		function _init( ) {
+		public function _init( ) {
 			global $icit_spots, $icit_spots_mce_button;
 
 			if ( ! defined( 'SPOTS_DOM' ) )
-				define( 'SPOTS_DOM','SPOTS_domain' );
+				define( 'SPOTS_DOM', 'SPOTS_domain' );
 
 			if ( ! defined( 'SPOTS_BASE' ) )
-				define( 'SPOTS_BASE','SPOTS_widget' );
+				define( 'SPOTS_BASE', 'SPOTS_widget' );
 
 			if ( ! defined( 'SPOTS_POST_TYPE' ) )
 				define( 'SPOTS_POST_TYPE', 'spot' );
@@ -79,10 +76,10 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				define( 'SPOTS_URL', plugins_url( '', __FILE__ ) );
 
 			if ( ! defined( 'SPOTS_CACHE_TIME' ) )
-				define( 'SPOTS_CACHE_TIME', get_option( 'spots_cache_time', ( 365*24*60*60 ) ) );
+				define( 'SPOTS_CACHE_TIME', get_option( 'spots_cache_time', ( 365 * 24 * 60 * 60 ) ) );
 
 			if ( ! defined( 'SPOTS_VER' ) )
-				define ( 'SPOTS_VER', filemtime( __FILE__ ) );
+				define( 'SPOTS_VER', filemtime( __FILE__ ) );
 
 			if ( ! defined( 'SPOTS_ONCE_FREQ' ) )
 				define( 'SPOTS_ONCE_FREQ', 0 );
@@ -97,7 +94,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		}
 
 
-		function settings() {
+		public function settings() {
 			add_settings_field( 'spots_cache_time', __( 'Cache Time (seconds)' ), array( __CLASS__, 'cache_time_field' ), 'spots' );
 			add_settings_field( 'spots_norobots', __( 'NoIndex on Single Spot Pages?' ), array( __CLASS__, 'norobots_field' ), 'spots' );
 			register_setting( 'spots', 'spots_cache_time', 'intval' );
@@ -260,7 +257,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			remove_meta_box( 'submitdiv', SPOTS_POST_TYPE, 'side' );
 
 			add_meta_box( 'submitdiv', __( 'Save' ), 'post_submit_meta_box', SPOTS_POST_TYPE, 'side', 'low' );
-			add_meta_box( 'pageparentdiv', __( 'Template' ), array( $this,'attributes_meta_box' ), SPOTS_POST_TYPE, 'side', 'high' );
+			add_meta_box( 'pageparentdiv', __( 'Template' ), array( $this, 'attributes_meta_box' ), SPOTS_POST_TYPE, 'side', 'high' );
 			add_meta_box( 'postimagediv', __( 'Featured Image' ), 'post_thumbnail_meta_box', SPOTS_POST_TYPE, 'side', 'high' );
 		}
 
@@ -274,11 +271,12 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 			$template = get_post_meta( $post->ID, '_spot_part', true );
 
-			if ( $templates = $this->get_templates( ) ) { ?>
+			if ( $templates = $this->get_templates( ) ) {
+				?>
 				<label class="screen-reader-text" for="page_template"><?php _e( 'Template' ) ?></label>
 				<select name="page_template" id="page_template">
 					<option value=""><?php _e( 'Default Template', SPOTS_DOM ); ?></option> <?php
-					foreach( $templates as $i => $name ) {
+					foreach ( $templates as $i => $name ) {
 						printf( '<option value="%s" %s>%s</option>', esc_attr( $name ), selected( $name, $template, false ), esc_html( ucfirst( $name ) ) );
 					} ?>
 				</select>
@@ -296,7 +294,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		 * @return string
 		 */
 		function late_shortcode( $content ) {
-			global $shortcode_tags, $post;
+			global $post;
 
 			if ( $post->post_type == SPOTS_POST_TYPE )
 				return $content;
@@ -354,14 +352,13 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				return $post_id;
 
 			// perms
-			if ( ! current_user_can( 'edit_post' ) )
+			if ( ! current_user_can( 'edit_post', $post_id ) )
 				return $post_id;
 
 			// save template
 			if ( isset( $_POST[ 'page_template' ] ) ) {
 				$template = sanitize_file_name( $_POST[ 'page_template' ] );
 				update_post_meta( $post_id, '_spot_part', $template );
-
 			} else {
 				$template = get_post_meta( $post->ID, '_spot_part', true );
 			}
