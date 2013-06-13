@@ -4,7 +4,7 @@ Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.1.7
+Stable tag: 1.1.8
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -12,7 +12,7 @@ Content manage those little snippets of text that you need across your WordPress
 
 Here at interconnect/it we have a policy of developing client sites with the premise of "content manage everything!"  That means the little notices on sites, minor widgets and so on should not only be content managed, but they should be easy for both an end-user and a developer to work with.
 
-To that end, we developed Spots.  This creates a custom post type that allows you to create widgets using a visual editor, whilst also giving developers an easy hook for the creation of content maneagable elements within a theme.
+To that end, we developed Spots.  This creates a custom post type that allows you to create widgets using a visual editor, whilst also giving developers an easy hook for the creation of content managable elements within a theme.
 
 The plugin now uses caching in order to help ensure that the load on a typical site is kept to a minimum.  Performance is important!
 
@@ -136,6 +136,10 @@ If you have a featured image, your theme can use this for display options.  If y
 6. A Template Tag replacement of content in the footer of the 2010 theme.
 
 == Changelog ==
+
+= 1.1.8 =
+* Fixed: Edit capability not checking the specific spot in 1 circumstance
+* Fixed: Spot auto creation when used in templates now also searches for the post name, preventing duplication on title changes
 
 = 1.1.7 =
 * Fixed: edit links being cached in certain suituations
