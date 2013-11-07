@@ -94,7 +94,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		}
 
 
-		public function settings() {
+		public static function settings() {
 			add_settings_field( 'spots_cache_time', __( 'Cache Time (seconds)' ), array( __CLASS__, 'cache_time_field' ), 'spots' );
 			add_settings_field( 'spots_norobots', __( 'NoIndex on Single Spot Pages?' ), array( __CLASS__, 'norobots_field' ), 'spots' );
 			register_setting( 'spots', 'spots_cache_time', 'intval' );
