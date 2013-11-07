@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://wordpress.org/extend/plugins/spots/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
-Version: 1.1.8
+Version: 1.1.9
 Author URI: http://interconnectit.com
 */
 
@@ -57,7 +57,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		/*
 		 Done late enough that the constants can be overridden with the theme.
 		*/
-		public function _init( ) {
+		public static function _init( ) {
 			global $icit_spots;
 
 			if ( ! defined( 'SPOTS_DOM' ) )
@@ -516,7 +516,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			<?php
 		}
 
-		function edit_link( $spot_id, $echo = true ) {
+		public static function edit_link( $spot_id, $echo = true ) {
 
 			$edit_link = '';
 
@@ -528,7 +528,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			return $edit_link;
 		}
 
-		function edit_link_style() { ?>
+		public static function edit_link_style() { ?>
 			<style>
 			.icit-spot-edit-link-holder {
 				position: relative;
@@ -1130,7 +1130,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			return apply_filters( 'admin_spot_thumbnail_html', $content );
 		}
 
-		function _init( ) {
+		public static function _init( ) {
 			register_widget( __CLASS__ );
 		}
 
