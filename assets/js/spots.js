@@ -80,7 +80,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 		if( adminpage == 'widgets-php' ) {
 
 			$( '.widget-liquid-right' ).ajaxComplete( function( e, h, o ) {
-				var req = o.data.split( '&' ),
+				var req = o !== undefined ? o.data.split( '&' ) : [],
 					data = {}, _tmp, tx, i;
 
 				for ( i in req ) {
