@@ -13,7 +13,12 @@
 				sc = sc.replace( 'template=%VALUE2%', typeof( tv ) !== 'undefined' && tv !== '' ? 'template="' + tv + '"' : '');
 				op = st + sc.replace( '%VALUE1%', sv );
 
-				window.tinyMCE.execInstanceCommand( tinyMCE.activeEditor.id, 'mceInsertContent', false, op );
+				if ( window.tinyMCE.majorVersion < 4 ) {
+					window.tinyMCE.execInstanceCommand( tinyMCE.activeEditor.id, 'mceInsertContent', false, op );
+				}
+				else {
+					window.tinyMCE.execCommand( 'mceInsertContent', false, op );
+				}
 			}
 
 			// Exit back to tinyMCE.

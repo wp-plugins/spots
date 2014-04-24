@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://wordpress.org/extend/plugins/spots/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
-Version: 1.1.9
+Version: 1.2
 Author URI: http://interconnectit.com
 */
 
@@ -31,6 +31,18 @@ if ( ! class_exists( 'icit_spots' ) ) {
 	add_action( 'admin_init', array( 'icit_spots', 'settings' ) );
 
 	class icit_spots {
+
+		/**
+		 * @var icit_spots This object
+		 */
+		static $instance_spots = null;
+
+		/**
+		 * @var icit_spots_mce_button AWWWWWW it's the button
+		 */
+		protected static $instance_mce_button;
+
+
 		public function __construct() {
 			add_action( 'init', array( $this, 'post_type' ) );
 			add_action( 'admin_head', array( $this, 'admin_head' ) );
@@ -89,8 +101,11 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			if ( file_exists( SPOTS_DIR . '/lang/' . SPOTS_DOM . '-' . $locale . '.mo' ) )
 				load_textdomain( SPOTS_DOM, SPOTS_DIR . '/lang/' . SPOTS_DOM . '-' . $locale . '.mo' );
 
-			$icit_spots = new icit_spots( );
-			$icit_spots_mce_button = new icit_spots_mce_button( );
+			if ( self::$instance_spots === null )
+				$icit_spots = self::$instance_spots = new icit_spots( );
+
+			if ( self::$instance_mce_button === null )
+				self::$instance_mce_button = new icit_spots_mce_button( );
 		}
 
 
@@ -478,6 +493,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			} ?>
 
 			<style type="text/css">
+				#postdivrich .mce-i-addspotbutton,
 				#wpbody-content span.mce_addspotbutton,
 				#adminmenu #menu-posts-spot div.wp-menu-image,
 				#icon-edit.icon32-posts-spot {
@@ -485,6 +501,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 					background-repeat:no-repeat;
 					background-color:transparent;
 					background-position:0 0;
+					background-size: initial;
 				}
 
 				@media
@@ -493,6 +510,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		        only screen and (     -o-min-device-pixel-ratio: 3/2),
 		        only screen and (        min-device-pixel-ratio: 1.5),
 		        only screen and (                min-resolution: 1.5dppx) {
+					#postdivrich .mce-i-addspotbutton,
 					#wpbody-content span.mce_addspotbutton,
 					#adminmenu #menu-posts-spot div.wp-menu-image,
 					#icon-edit.icon32-posts-spot {
@@ -502,6 +520,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 					}
 				}
 
+				#postdivrich .mce-i-addspotbutton:hover,
 				#wpbody-content span.mce_addspotbutton:hover	{ background-position: 0 -20px }
 				#adminmenu #menu-posts-spot div.wp-menu-image 		{ background-position: -20px 0 }
 				#adminmenu #menu-posts-spot:hover div.wp-menu-image{ background-position: -20px -28px }
@@ -768,7 +787,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		 */
 		public function __construct( ) {
 			$widget_ops = array( 'classname' => 'spot', 'description' => __( 'Spot widget. Create or choose an existing spot to display.' ) );
-			$control_ops = array( 'width' => 450 );
+			$control_ops = array( 'width' => 550 );
 			$this->WP_Widget( SPOTS_POST_TYPE, __( 'Spot', SPOTS_DOM ), $widget_ops, $control_ops );
 
 			add_action( 'admin_init', array( $this, 'admin_init' ), 100 );
@@ -1062,7 +1081,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				<?php
 				}
 			}
-			$templates = icit_spots::get_templates();
+			$templates = icit_spots::$instance_spots->get_templates();
 			if ( $templates ) {
 				?>
 

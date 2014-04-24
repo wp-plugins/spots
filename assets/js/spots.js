@@ -2,6 +2,12 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 ;(function($){
 	$( document ).ready( function( ) {
 
+		function icit_tinyMCE_getInstance( id ) {
+			return window.tinyMCE.majorVersion < 4 ?
+				window.tinyMCE.getInstanceById( id ) :
+				false;
+		}
+
 		var bn = setPostThumbnailL10n.basename, // Widget base name
 			mb = setPostThumbnailL10n.media, // Media buttons
 			mi = setPostThumbnailL10n.mceid, // Settings ID
@@ -16,13 +22,13 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 					content = $.trim( ta.val( ).replace( /^\&nbsp\;(?:[\r\n])+$/m, '' ) ), // remove empty 'paragraph' that appears & trim
 					spot_id = ta.parents( '.widget' ).find( '.spot-id' ).val();
 
-				if ( ta.not(':disabled').length && ta.parents( ':not(:hidden)' ).length && ! tinyMCE.getInstanceById( id ) ) {
+				if ( ta.not(':disabled').length && ta.parents( ':not(:hidden)' ).length && !icit_tinyMCE_getInstance( id ) ) {
 					if ( typeof( switchEditors.wpautop ) === 'function' )
 						ta.val( switchEditors.wpautop( content ) );
 
 					if ( ! ta.prev( mb ).length ) {
 						media_buttons.clone().insertBefore( ta ).removeClass( 'hidden' ).find( 'a' ).bind( 'click.' + bn, function( ){
-							if( typeof( tinyMCE ) === 'object' && tinyMCE.getInstanceById( id ) )
+							if( typeof( tinyMCE ) === 'object' && icit_tinyMCE_getInstance( id ) )
 								tinyMCE.execCommand( 'mceFocus', false, id );
 						} ).attr( 'href', function( i, val ) {
 							return val.replace( '?post_id=0&', '?post_id=' + spot_id.toString() + '&' );
@@ -55,7 +61,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 				if ( typeof( tinyMCE ) !== 'object' || typeof( id ) == 'undefined' )
 					return;
 
-				if ( tinyMCE.getInstanceById( id ) ) {
+				if ( icit_tinyMCE_getInstance( id ) ) {
 					try {
 						tinyMCE.execCommand( 'mceFocus', false, id );
 						tinyMCE.execCommand( 'mceCleanup', false, id );
