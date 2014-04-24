@@ -76,11 +76,12 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 					try {
 						tinyMCE.execCommand( 'mceFocus', false, id );
 						tinyMCE.execCommand( 'mceCleanup', false, id );
-						tinyMCE.triggerSave();
 						if ( oldVer ) {
+							tinyMCE.triggerSave();
 							tinyMCE.execCommand( 'mceRemoveControl', false, id );
 						}
 						else {
+							ICITgetInstance( id ).save();
 							ICITgetInstance( id ).destroy();
 						}
 					}
@@ -104,9 +105,9 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 			},
 			media_buttons = $( mb );
 
-		if( adminpage == 'widgets-php' ) {
+		if ( adminpage == 'widgets-php' ) {
 
-			$( '.widget-liquid-right' ).ajaxComplete( function( e, h, o ) {
+			$( document ).ajaxComplete( function( e, h, o ) {
 				var req = o !== undefined ? o.data.split( '&' ) : [],
 					data = {}, _tmp, tx, i;
 
@@ -154,20 +155,24 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 					}
 
 					// Remove the default save action so we can add our own.
-					widget.find( 'input.widget-control-save' ).die( 'click' ).unbind( 'click' ).bind( 'click', function( e ) {
-						e.preventDefault();
+					widget
+						.find( 'input.widget-control-save' )
+						.off( 'click' )
+						.unbind( 'click' )
+						.bind( 'click', function( e ) {
+								e.preventDefault();
 
-						if ( tx.length == 0 ) // If the textarea wasn't around at the when this was first attached we need to look again
-							tx = widget.find( '.widget-inside textarea.mceme' );
+							if ( tx.length == 0 ) // If the textarea wasn't around at the when this was first attached we need to look again
+								tx = widget.find( '.widget-inside textarea.mceme' );
 
-						// Remove MCE
-						killMCE( tx.attr( 'id' ) );
-						tx.removeClass( 'mceEdit' );
+							// Remove MCE
+							killMCE( tx.attr( 'id' ) );
+							tx.removeClass( 'mceEdit' );
 
-						// Trigger the normal WP widget save.
-						wpWidgets.save( widget, 0, 1, 0 );
-						return false;
-					});
+							// Trigger the normal WP widget save.
+							wpWidgets.save( widget, 0, 1, 0 );
+							return false;
+						});
 				}
 
 			} );
@@ -209,7 +214,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 		};
 
 		// create spot handler
-		$( '.create-spot' ).live( 'click', function() {
+		$( document ).on( 'click', '.create-spot', function() {
 			current_spot = $(this).parents('.widget');
 
 			// if no title then let them know

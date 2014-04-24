@@ -1011,7 +1011,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				wp_update_post( array( 'ID' => $instance[ 'id' ], 'post_content' => $new_instance[ 'content' ] ) );
 
 			// set widget title to spot title if spot not selected previously and widget title not set
-			if ( empty( $old_instance[ 'title' ] ) && empty( $new_instance[ 'title' ] ) && ! intval( $old_instance[ 'id' ] ) && $instance[ 'id' ] )
+			if ( empty( $instance[ 'title' ] ) && isset( $instance[ 'id' ] ) )
 				$instance[ 'title' ] = get_the_title( $instance[ 'id' ] );
 
 			return $instance;
