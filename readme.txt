@@ -3,8 +3,8 @@ Contributors: interconnectit, spectacula, sanchothefat, TJNowell, chiquita
 Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
-Tested up to: 3.5.1
-Stable tag: 1.1.8
+Tested up to: 3.9
+Stable tag: 1.2
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -137,6 +137,13 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.2 =
+* Added: Support for the new tinyMCE in WordPress 3.9
+* Fixed: TinyMCE button on the post edit page.
+* Fixed: TinyMCE is working in the widget again.
+* Fixed: Bug with the showing of tinyMCE if you toggle the widget show/hide quickly.
+* Fixed: Removed some strict warnings with PHP 5.5.
+
 = 1.1.8 =
 * Fixed: Edit capability not checking the specific spot in 1 circumstance
 * Fixed: Spot auto creation when used in templates now also searches for the post name, preventing duplication on title changes
@@ -220,6 +227,9 @@ If you have a featured image, your theme can use this for display options.  If y
 * Development version and Alpha release.
 
 == Upgrade Notice ==
+
+= 1.2 =
+This version adds support for WordPress 3.9 and version 4 of tinyMCE.
 
 = 1.0.1 =
 This version corrects the UI problems experienced by some users, and the repeated draft Spot creation bug when used with template tags for non-existent Spots.
