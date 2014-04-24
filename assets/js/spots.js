@@ -140,18 +140,22 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 			// Listen for a click on the widget drop down toggle and init or kill mce.
 			$( '#wpbody' ).on( 'click.' + bn, '.widget-title-action a', function( ) {
 				var widget = $( this ).parents( '.widget' ),
-					tx = '';
+					tx = '', q;
 
 				if ( widget.attr( 'id' ).match( rx ) ) {
 					tx = widget.find( '.widget-inside textarea.mceme' );
 
-					if ( tx.hasClass( 'mceEdit' ) ) {
+					if ( !widget.children( '.widget-inside' ).is( ':hidden' ) ) {
+						clearTimeout( q );
 						killMCE( tx.attr( 'id' ) );
 						tx.removeClass( 'mceEdit' );
 					} else {
 						// This is horrid. Due to some styling issues I delay the load of mce until the widget animation is most likely to be done.
-						setTimeout( function( ) { startMCE( tx.attr( 'id' ) ) }, 250 );
-						tx.addClass( 'mceEdit' );
+						clearTimeout( q );
+						q = setTimeout( function( ) {
+							startMCE( tx.attr( 'id' ) )
+							tx.addClass( 'mceEdit' );
+						}, 260 );
 					}
 
 					// Remove the default save action so we can add our own.
