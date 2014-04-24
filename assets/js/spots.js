@@ -2,17 +2,22 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 ;(function($){
 	$( document ).ready( function( ) {
 
-		function icit_tinyMCE_getInstance( id ) {
-			return window.tinyMCE.majorVersion < 4 ?
-				window.tinyMCE.getInstanceById( id ) :
-				false;
-		}
 
 		var bn = setPostThumbnailL10n.basename, // Widget base name
 			mb = setPostThumbnailL10n.media, // Media buttons
 			mi = setPostThumbnailL10n.mceid, // Settings ID
 			re = setPostThumbnailL10n.rich == 1, // Can we rich edit
 			rx = new RegExp( '^widget-\\d+_' + bn + '-\\d+$' ), // Match for widget name
+			oldVer = window.tinyMCE.majorVersion < 4,
+			ICITgetInstance = function( id ) {
+				var mce = false;
+
+				mce = oldVer ?
+					window.tinyMCE.getInstanceById( id ) :
+					window.tinyMCE.get( id );
+
+				return mce === null || mce === undefined ? false : mce;
+			},
 
 			startMCE = function( id ) {
 				if ( ! re || ( typeof( tinyMCE ) !== 'object' && typeof( tinyMCE.settings ) !== 'object' ) || typeof( id ) == 'undefined'  )
@@ -22,13 +27,13 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 					content = $.trim( ta.val( ).replace( /^\&nbsp\;(?:[\r\n])+$/m, '' ) ), // remove empty 'paragraph' that appears & trim
 					spot_id = ta.parents( '.widget' ).find( '.spot-id' ).val();
 
-				if ( ta.not(':disabled').length && ta.parents( ':not(:hidden)' ).length && !icit_tinyMCE_getInstance( id ) ) {
+				if ( ta.not(':disabled').length && ta.parents( ':not(:hidden)' ).length && !ICITgetInstance( id ) ) {
 					if ( typeof( switchEditors.wpautop ) === 'function' )
 						ta.val( switchEditors.wpautop( content ) );
 
 					if ( ! ta.prev( mb ).length ) {
 						media_buttons.clone().insertBefore( ta ).removeClass( 'hidden' ).find( 'a' ).bind( 'click.' + bn, function( ){
-							if( typeof( tinyMCE ) === 'object' && icit_tinyMCE_getInstance( id ) )
+							if( typeof( tinyMCE ) === 'object' && ICITgetInstance( id ) )
 								tinyMCE.execCommand( 'mceFocus', false, id );
 						} ).attr( 'href', function( i, val ) {
 							return val.replace( '?post_id=0&', '?post_id=' + spot_id.toString() + '&' );
@@ -47,12 +52,18 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 						setUserSetting( 'hidetb', '0' );
 
 					try {
-						new tinyMCE.Editor( id, settings ).render();
+						if ( oldVer ) {
+							new tinyMCE.Editor( id, settings ).render();
+						}
+						else {
+							new tinyMCE.Editor( id, settings, tinyMCE.EditorManager ).render();
+						}
+
 					}
 					catch( e ) {
 						// No idea why
 						if ( typeof( console ) !== 'undefined' )
-							console.log( e );
+							console.log( e, id, settings );
 					}
 
 				}
@@ -61,12 +72,17 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 				if ( typeof( tinyMCE ) !== 'object' || typeof( id ) == 'undefined' )
 					return;
 
-				if ( icit_tinyMCE_getInstance( id ) ) {
+				if ( ICITgetInstance( id ) ) {
 					try {
 						tinyMCE.execCommand( 'mceFocus', false, id );
 						tinyMCE.execCommand( 'mceCleanup', false, id );
 						tinyMCE.triggerSave();
-						tinyMCE.execCommand( 'mceRemoveControl', false, id );
+						if ( oldVer ) {
+							tinyMCE.execCommand( 'mceRemoveControl', false, id );
+						}
+						else {
+							ICITgetInstance( id ).destroy();
+						}
 					}
 					catch( e ) {
 						if ( typeof( console ) !== 'undefined' )
@@ -74,7 +90,12 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 
 						// We had problems with the focus and cleanup, normally
 						// due to a lost mce. Needs to die without save. :(
-						tinyMCE.execCommand( 'mceRemoveControl', false, id );
+						if ( oldVer ) {
+							tinyMCE.execCommand( 'mceRemoveControl', false, id );
+						}
+						else {
+							ICITgetInstance( id ).destroy();
+						}
 					}
 
 					$( '#' + id ).prev( mb ).remove( );
@@ -103,7 +124,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 
 
 			// Kill MCE on widget move
-			$( '.widgets-sortables' ).live( 'sortstart.' + bn, function( e, ui ) {
+			$( '#wpbody' ).on( 'sortstart.' + bn, '.widgets-sortables', function( e, ui ) {
 				var widget = ui.item,
 					tx = '', id = widget.attr( 'id' );
 
@@ -116,7 +137,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 
 
 			// Listen for a click on the widget drop down toggle and init or kill mce.
-			$( '.widget-title-action a' ).live( 'click.' + bn, function( ) {
+			$( '#wpbody' ).on( 'click.' + bn, '.widget-title-action a', function( ) {
 				var widget = $( this ).parents( '.widget' ),
 					tx = '';
 
