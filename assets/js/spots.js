@@ -138,7 +138,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 
 
 			// Listen for a click on the widget drop down toggle and init or kill mce.
-			$( '#wpbody' ).on( 'click.' + bn, '.widget-title-action a', function( ) {
+			$( '#wpbody' ).on( 'click.' + bn, '.widget-title-action a, .widget-title', function( ) {
 				var widget = $( this ).parents( '.widget' ),
 					tx = '', q;
 
