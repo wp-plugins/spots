@@ -4,7 +4,7 @@ Plugin Name: Spots
 Plugin URI: http://wordpress.org/extend/plugins/spots/
 Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
 Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
-Version: 1.2.2
+Version: 1.3
 Author URI: http://interconnectit.com
 */
 
@@ -853,54 +853,24 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		public function admin_footer( ) {
 			global $pagenow, $post;
 
-			if ( $pagenow != 'widgets.php' || ! user_can_richedit( ) )
+			if ( $pagenow != 'widgets.php' || !user_can_richedit( ) )
 				return;
 
 			if ( empty( $post ) ) // Stops warnings being thrown on the widget page.
 				$post = (object) array( 'post_status' => 'publish', 'ID' => -1 );
 
-			if ( ! function_exists( 'media_buttons' ) ) // Make sure we have the media buttons
-				include( ABSPATH . 'wp-admin/includes/media.php' );
-			?>
+			add_filter( 'mce_buttons', array( __CLASS__, 'mce_buttons' ) ); // Remove unneeded buttons ?>
 
-			<div id="spot_hidden_editors" class="hidden">
-			<?php
+			<div class="icit-hidden-editor hidden"><?php
 
-				add_filter( 'mce_buttons', array( $this, 'mce_buttons' ) );
+				// The editor, mostly so all the js gets included.
+				wp_editor( '', $this->editor_id, array( 'media_buttons' => true, 'dfw' => false, 'tinymce' => array( 'height' => 350 ) ) ); ?>
 
-				if ( function_exists( 'wp_editor' ) ) {
-					// WP 3.3+
-					$css = apply_filters( 'spots_editor_css', null );
-					wp_editor( '', $this->editor_id, array( 'media_buttons' => true, 'dfw' => false, 'tinymce' => array( 'height' => 300, 'content_css' => ( ! empty( $css ) ? get_bloginfo( 'template_url' ) . $css : null ) ) ) );
-				} else {
-					// Older WP
-					add_filter( 'tiny_mce_before_init', array( $this, 'steal_settings' ), 10 );
-					wp_tiny_mce( false, array( 'icit_id' => $this->editor_id ) );
-					remove_filter( 'tiny_mce_before_init', array( $this, 'steal_settings' ), 10 );
+			</div><?php
 
-					// Drop the settings into a var I can access from the JS
-					if ( ! empty( $this->settings ) ) {
-						?>
-						<script type="text/javascript">
-						/* <![CDATA[ */
-						if ( typeof( icit_mce_settings ) !== 'object' )
-							var icit_mce_settings = {};
+			// Delete the filters applied above so they don't cause problems elsewhere
+			remove_filter( 'mce_buttons', array( __CLASS__, 'mce_buttons' ) );
 
-						icit_mce_settings.<?php echo esc_js( $this->editor_id ); ?>  = {<?php echo $this->settings; ?>};
-						/* ]]> */
-						</script>
-						<?php
-					}
-				}
-
-				remove_filter( 'mce_buttons', array( $this, 'mce_buttons' ) ); ?>
-
-				<div class="spot-media-buttons wp-media-buttons hide-if-no-js hidden"><?php
-					// This is hidden here for me to clone from the JS as needed.
-					do_action( 'media_buttons', $this->editor_id ); ?>
-				</div>
-			</div>
-			<?php
 		}
 
 
@@ -946,7 +916,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 
 		// basic button set for widget
-		function mce_buttons( $buttons ) {
+		public static function mce_buttons( $buttons ) {
 			$buttons = apply_filters( 'spots_mce_buttons', array(
 				'bold',
 				'italic',
@@ -975,7 +945,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			if ( empty( $spot_id ) )
 				return;
 
-			if( ! is_admin() && is_user_logged_in() && current_user_can( 'edit_post', $spot_id ) )
+			if( apply_filters( 'spots_show_edit_link', !is_admin() && is_user_logged_in() && current_user_can( 'edit_post', $spot_id ) ) )
 				add_action( 'wp_footer', array( 'icit_spots', 'edit_link_style' ) );
 
 			$content = icit_get_spot( ( int )$spot_id, ( ! empty( $template ) ? $template : '' ) );
@@ -1063,6 +1033,10 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			}
 
 			if ( isset( $spot_post ) ) { ?>
+				<div class="code-toggle hide-if-no-js">
+					<a href="#" class="button visual" data-id="<?php echo $this->get_field_id( 'content' ); ?>" ><?php _e( 'Visual', SPOTS_DOM ); ?></a>
+					<a href="#" class="button text" data-id="<?php echo $this->get_field_id( 'content' ); ?>"><?php _e( 'Text', SPOTS_DOM ); ?></a>
+				</div>
 
 				<div class="editorcontainer wp-editor-wrap">
 					<textarea cols="40" rows="10" class="widefat mceme" id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>"><?php echo wp_richedit_pre( $spot_post->post_content ); ?></textarea>
@@ -1280,7 +1254,7 @@ function icit_get_spot( $spot_id = false, $template = '', $echo = false ) {
 
 	// check cache
 	$cache = false;
-	$show_edit_link = is_user_logged_in() && current_user_can( 'edit_post', $spot_id );
+	$show_edit_link = apply_filters( 'spots_show_edit_link', is_user_logged_in() && current_user_can( 'edit_post', $spot_id ) );
 	if ( ! $show_edit_link && ( defined( 'SPOTS_CACHE_TIME' ) && (int) SPOTS_CACHE_TIME > 0 ) )
 		$cache = get_transient( $cache_id );
 

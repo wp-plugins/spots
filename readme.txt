@@ -137,6 +137,11 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.3 =
+* Added: Filter to disable the edit spot button. Adding add_filter( 'spots_show_edit_link', '__return_false' ); to your functions.php should result in the removal of the inline edit link.
+* Fixed: Media button no more in line with WordPress best practice.
+* Added: Toggles to the widget admin that'll let you edit raw text. The HTML button was removed from WP 3.9 and rather than add it back in I thought it bettet to use something similar to the tabs on the normal post edit page.
+
 = 1.2.2 =
 * Fixed: Titles can be blank again. Oops!
 * Fixed: Widget drag handles can be clicked to open the widget and show TinyMCE.
@@ -234,6 +239,9 @@ If you have a featured image, your theme can use this for display options.  If y
 * Development version and Alpha release.
 
 == Upgrade Notice ==
+
+= 1.3 =
+Improved support for WordPress 3.9. Removes some support for older versions of WP.
 
 = 1.2 =
 This version adds support for WordPress 3.9 and version 4 of tinyMCE.

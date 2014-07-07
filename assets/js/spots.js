@@ -4,8 +4,8 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 
 
 		var bn = setPostThumbnailL10n.basename, // Widget base name
-			mb = setPostThumbnailL10n.media, // Media buttons
 			mi = setPostThumbnailL10n.mceid, // Settings ID
+			mb = $( '#wp-' + mi + '-wrap' ).find( '.wp-media-buttons' ), // Media buttons
 			re = setPostThumbnailL10n.rich == 1, // Can we rich edit
 			rx = new RegExp( '^widget-\\d+_' + bn + '-\\d+$' ), // Match for widget name
 			oldVer = window.tinyMCE.majorVersion < 4,
@@ -31,13 +31,16 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 					if ( typeof( switchEditors.wpautop ) === 'function' )
 						ta.val( switchEditors.wpautop( content ) );
 
-					if ( ! ta.prev( mb ).length ) {
-						media_buttons.clone().insertBefore( ta ).removeClass( 'hidden' ).find( 'a' ).bind( 'click.' + bn, function( ){
-							if( typeof( tinyMCE ) === 'object' && ICITgetInstance( id ) )
-								tinyMCE.execCommand( 'mceFocus', false, id );
-						} ).attr( 'href', function( i, val ) {
-							return val.replace( '?post_id=0&', '?post_id=' + spot_id.toString() + '&' );
-						} ).attr( 'data-editor', id ).data( 'editor', id ); // wp 3.5
+					// Create the media buttons if they don't exist already.
+					if ( !ta.parent().siblings( '.wp-media-buttons' ).length ) {
+						mb.clone()
+							.insertBefore( ta.parent() )
+							.removeClass( 'hidden' )
+							.find( 'a' )
+							.bind( 'click.' + bn, function( ) {
+								if ( typeof( tinyMCE ) === 'object' && ICITgetInstance( id ) )
+									tinyMCE.execCommand( 'mceFocus', false, id );
+							} );
 					}
 
 					if ( typeof( tinyMCEPreInit.mceInit[mi] ) !== 'undefined' ) {
@@ -47,7 +50,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 						settings = typeof( icit_mce_settings ) !== 'undefined' ? icit_mce_settings[mi] : tinyMCE.settings;
 					}
 
-					// Make sure the second tow of buttons is hidden
+					// Make sure the second row of buttons is hidden
 					if ( typeof( setUserSetting ) == 'function' )
 						setUserSetting( 'hidetb', '0' );
 
@@ -66,11 +69,26 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 							console.log( e, id, settings );
 					}
 
+					// Toogle the code button
+					ta.parents( '.widget-content' )
+						.find( '.code-toggle a.visual' )
+						.addClass( 'active' )
+						.addClass( 'disabled' )
+						.end( )
+						.find( '.code-toggle a.text' )
+						.removeClass( 'active' )
+						.removeClass( 'disabled' )
+
+					ta.parents( '.wp-editor-wrap' )
+						.addClass( 'active' );
+
 				}
 			},
 			killMCE = function( id ) {
 				if ( typeof( tinyMCE ) !== 'object' || typeof( id ) == 'undefined' )
 					return;
+
+				var ta = $( '#' + id );
 
 				if ( ICITgetInstance( id ) ) {
 					try {
@@ -99,11 +117,26 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 						}
 					}
 
-					$( '#' + id ).prev( mb ).remove( );
+					// Remove the media buttons
+					ta.parent()
+						.siblings( '.wp-media-buttons' )
+						.remove( );
+
+					ta.parents( '.wp-editor-wrap' )
+						.removeClass( 'active' );
+
+					// Toogle the code button
+					ta.parents( '.widget-content' )
+						.find( '.code-toggle a.text' )
+						.addClass( 'active' )
+						.addClass( 'disabled' )
+						.end( )
+						.find( '.code-toggle a.visual' )
+						.removeClass( 'active' )
+						.removeClass( 'disabled' )
 				}
 
-			},
-			media_buttons = $( mb );
+			};
 
 		if ( adminpage == 'widgets-php' ) {
 
@@ -122,6 +155,19 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 				}
 
 			} );
+
+
+			$( '#wpbody' )
+				.on( 'click', '.code-toggle .button.text', function( e ) {
+					e.preventDefault();
+					killMCE( $( this ).data( 'id' ) );
+					return false;
+				} )
+				.on( 'click', '.code-toggle .button.visual', function( e ) {
+					e.preventDefault();
+					startMCE( $( this ).data( 'id' ) );
+					return false;
+				} );
 
 
 			// Kill MCE on widget move
@@ -164,9 +210,9 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 						.off( 'click' )
 						.unbind( 'click' )
 						.bind( 'click', function( e ) {
-								e.preventDefault();
+							e.preventDefault();
 
-							if ( tx.length == 0 ) // If the textarea wasn't around at the when this was first attached we need to look again
+							if ( tx.length == 0 ) // If the textarea wasn't around at the point when this was first attached we need to look again
 								tx = widget.find( '.widget-inside textarea.mceme' );
 
 							// Remove MCE
