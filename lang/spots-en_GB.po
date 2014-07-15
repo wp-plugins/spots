@@ -1,0 +1,264 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Spots\n"
+"POT-Creation-Date: 2014-07-15 11:02-0000\n"
+"PO-Revision-Date: 2014-07-15 11:44-0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.6\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: icit-spots.php:24
+msgid "Spots Settings"
+msgstr "Spots Settings"
+
+#: icit-spots.php:25
+msgid "Settings"
+msgstr "Settings"
+
+#: icit-spots.php:114
+msgid "Cache Time (seconds)"
+msgstr "Cache Time (seconds)"
+
+#: icit-spots.php:115
+msgid "NoIndex on Single Spot Pages?"
+msgstr "NoIndex on Single Spot Pages?"
+
+#: icit-spots.php:122
+msgid ""
+"Enter an amount of time in seconds to cache spots for. Set to 0 to turn the "
+"caching off, recommeneded if you use a caching plugin."
+msgstr ""
+"Enter an amount of time in seconds to cache spots for. Set to 0 to turn the "
+"caching off, recommeneded if you use a caching plugin."
+
+#: icit-spots.php:128
+msgid ""
+"Each Spot has a dedicated page, allow these pages to be indexed by search "
+"engines?"
+msgstr ""
+"Each Spot has a dedicated page, allow these pages to be indexed by search "
+"engines?"
+
+#: icit-spots.php:185
+msgid "Add New Spot"
+msgstr "Add New Spot"
+
+#: icit-spots.php:186 icit-spots.php:544
+msgid "Edit Spot"
+msgstr "Edit Spot"
+
+#: icit-spots.php:187
+msgid "New Spot"
+msgstr "New Spot"
+
+#: icit-spots.php:188
+msgid "View Spot"
+msgstr "View Spot"
+
+#: icit-spots.php:189
+msgid "Search Spots"
+msgstr "Search Spots"
+
+#: icit-spots.php:190
+msgid "No Spots found"
+msgstr "No Spots found"
+
+#: icit-spots.php:191
+msgid "No Spots found in Trash"
+msgstr "No Spots found in Trash"
+
+#: icit-spots.php:193
+msgid "Spots"
+msgstr "Spots"
+
+#: icit-spots.php:275
+msgid "Save"
+msgstr "Save"
+
+#: icit-spots.php:276 icit-spots.php:293 icit-spots.php:1064
+msgid "Template"
+msgstr "Template"
+
+#: icit-spots.php:277
+msgid "Featured Image"
+msgstr "Featured Image"
+
+#: icit-spots.php:295 icit-spots.php:735 icit-spots.php:1066
+msgid "Default Template"
+msgstr "Default Template"
+
+#: icit-spots.php:440
+msgid "Enter the destination URL"
+msgstr "Enter the destination URL"
+
+#: icit-spots.php:442
+msgid "URL"
+msgstr "URL"
+
+#: icit-spots.php:445
+msgid "Title"
+msgstr "Title"
+
+#: icit-spots.php:448
+msgid "Open link in a new window/tab"
+msgstr "Open link in a new window/tab"
+
+#: icit-spots.php:452
+msgid "Or link to existing content"
+msgstr "Or link to existing content"
+
+#: icit-spots.php:456
+msgid "Search"
+msgstr "Search"
+
+#: icit-spots.php:468
+msgid "No search term specified. Showing recent items."
+msgstr "No search term specified. Showing recent items."
+
+#: icit-spots.php:478
+msgid "Cancel"
+msgstr "Cancel"
+
+#: icit-spots.php:481
+msgid "Update"
+msgstr "Update"
+
+#: icit-spots.php:685
+msgid "Insert Spot."
+msgstr "Insert Spot."
+
+#: icit-spots.php:703
+msgid "Current:"
+msgstr "Current:"
+
+#: icit-spots.php:704
+msgid "(None selected)"
+msgstr "(None selected)"
+
+#: icit-spots.php:708
+msgid "Recent Spots."
+msgstr "Recent Spots."
+
+#: icit-spots.php:722
+msgid "Search for spots"
+msgstr "Search for spots"
+
+#: icit-spots.php:723
+msgid "Search:"
+msgstr "Search:"
+
+#: icit-spots.php:731
+msgid "Choose a template"
+msgstr "Choose a template"
+
+#: icit-spots.php:733
+msgid "Template:"
+msgstr "Template:"
+
+#: icit-spots.php:743 icit-spots.php:748
+msgid "Create a new spot."
+msgstr "Create a new spot."
+
+#: icit-spots.php:747
+msgid "You don't have any spots to choose from yet."
+msgstr "You don't have any spots to choose from yet."
+
+#: icit-spots.php:754
+msgid "Insert"
+msgstr "Insert"
+
+#: icit-spots.php:758
+msgid "Close"
+msgstr "Close"
+
+#: icit-spots.php:790
+msgid "Spot widget. Create or choose an existing spot to display."
+msgstr "Spot widget. Create or choose an existing spot to display."
+
+#: icit-spots.php:792
+msgid "Spot"
+msgstr "Spot"
+
+#: icit-spots.php:833
+msgid "Use as featured image"
+msgstr "Use as featured image"
+
+#: icit-spots.php:834
+msgid "Saving..."
+msgstr "Saving..."
+
+#: icit-spots.php:835
+msgid "Could not set that as the thumbnail image. Try a different attachment."
+msgstr "Could not set that as the thumbnail image. Try a different attachment."
+
+#: icit-spots.php:836
+msgid "Done"
+msgstr "Done"
+
+#: icit-spots.php:1007
+msgid "Title:"
+msgstr "Title:"
+
+#: icit-spots.php:1015
+msgid "Create a new spot"
+msgstr "Create a new spot"
+
+#: icit-spots.php:1016
+msgid "(You must enter a title first)"
+msgstr "(You must enter a title first)"
+
+#: icit-spots.php:1025
+msgid "Or select an existing "
+msgstr "Or select an existing "
+
+#: icit-spots.php:1025
+msgid "Spot:"
+msgstr "Spot:"
+
+#: icit-spots.php:1027
+msgid "None"
+msgstr "None"
+
+#: icit-spots.php:1038
+msgid "Visual"
+msgstr "Visual"
+
+#: icit-spots.php:1039
+msgid "Text"
+msgstr "Text"
+
+#: icit-spots.php:1075
+msgid "Go to the full editor for this spot"
+msgstr "Go to the full editor for this spot"
+
+#: icit-spots.php:1102 icit-spots.php:1103
+msgid "Set featured image"
+msgstr "Set featured image"
+
+#: icit-spots.php:1119
+msgid "Remove featured image"
+msgstr "Remove featured image"
+
+#: icit-spots.php:1241
+#, php-format
+msgid "Click here to edit the %s spot."
+msgstr "Click here to edit the %s spot."
+
+#: includes/icit-plugin.php:131 includes/icit-plugin.php:425
+msgid "You do not have permission to use this page."
+msgstr "You do not have permission to use this page."
+
+#: includes/icit-plugin.php:166 includes/icit-plugin.php:453
+msgid "Visit plugin page"
+msgstr "Visit plugin page"

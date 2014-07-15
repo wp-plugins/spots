@@ -1,11 +1,12 @@
 <?php
 /*
-Plugin Name: Spots
-Plugin URI: http://wordpress.org/extend/plugins/spots/
-Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
-Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
-Version: 1.3
-Author URI: http://interconnectit.com
+ Plugin Name: Spots
+ Plugin URI: http://wordpress.org/extend/plugins/spots/
+ Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
+ Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
+ Version: 1.3
+ Text Domain: spots
+ Author URI: http://interconnectit.com
 */
 
 // it's all about the future
@@ -20,8 +21,8 @@ if ( ! class_exists( 'icit_spots' ) ) {
 	require_once( 'includes/icit-plugin.php' );
 
 	icit_register_plugin( 'spots', __FILE__, array(
-		'page_title' => __( 'Spots Settings' ),
-		'menu_title' => __( 'Settings' ),
+		'page_title' => __( 'Spots Settings', SPOTS_DOM ),
+		'menu_title' => __( 'Settings', SPOTS_DOM ),
 		'parent_slug' => 'edit.php?post_type=spot'
 	) );
 
@@ -73,7 +74,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			global $icit_spots;
 
 			if ( ! defined( 'SPOTS_DOM' ) )
-				define( 'SPOTS_DOM', 'SPOTS_domain' );
+				define( 'SPOTS_DOM', 'spots' );
 
 			if ( ! defined( 'SPOTS_BASE' ) )
 				define( 'SPOTS_BASE', 'SPOTS_widget' );
@@ -110,21 +111,21 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 
 		public static function settings() {
-			add_settings_field( 'spots_cache_time', __( 'Cache Time (seconds)' ), array( __CLASS__, 'cache_time_field' ), 'spots' );
-			add_settings_field( 'spots_norobots', __( 'NoIndex on Single Spot Pages?' ), array( __CLASS__, 'norobots_field' ), 'spots' );
+			add_settings_field( 'spots_cache_time', __( 'Cache Time (seconds)', SPOTS_DOM ), array( __CLASS__, 'cache_time_field' ), 'spots' );
+			add_settings_field( 'spots_norobots', __( 'NoIndex on Single Spot Pages?', SPOTS_DOM ), array( __CLASS__, 'norobots_field' ), 'spots' );
 			register_setting( 'spots', 'spots_cache_time', 'intval' );
 			register_setting( 'spots', 'spots_norobots', 'intval' );
 		}
 
 		function cache_time_field() {
 			echo '<input type="text" name="spots_cache_time" value="' . get_option( 'spots_cache_time', SPOTS_CACHE_TIME ) . '" />';
-			echo '<p class="description">' . __( 'Enter an amount of time in seconds to cache spots for. Set to 0 to turn the caching off, recommeneded if you use a caching plugin.' ) . '</p>';
+			echo '<p class="description">' . __( 'Enter an amount of time in seconds to cache spots for. Set to 0 to turn the caching off, recommeneded if you use a caching plugin.', SPOTS_DOM ) . '</p>';
 		}
 
 		function norobots_field() {
 			echo '<input type="checkbox" name="spots_norobots" value="1" ';
 			echo checked( get_option( 'spots_norobots', 1 ), 1 ); echo ' />';
-			echo '<p class="description">' . __( 'Each Spot has a dedicated page, allow these pages to be indexed by search engines?' ) . '</p>';
+			echo '<p class="description">' . __( 'Each Spot has a dedicated page, allow these pages to be indexed by search engines?', SPOTS_DOM ) . '</p>';
 		}
 
 
@@ -271,9 +272,9 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			remove_meta_box( 'postimagediv', SPOTS_POST_TYPE, 'side' );
 			remove_meta_box( 'submitdiv', SPOTS_POST_TYPE, 'side' );
 
-			add_meta_box( 'submitdiv', __( 'Save' ), 'post_submit_meta_box', SPOTS_POST_TYPE, 'side', 'low' );
-			add_meta_box( 'pageparentdiv', __( 'Template' ), array( $this, 'attributes_meta_box' ), SPOTS_POST_TYPE, 'side', 'high' );
-			add_meta_box( 'postimagediv', __( 'Featured Image' ), 'post_thumbnail_meta_box', SPOTS_POST_TYPE, 'side', 'high' );
+			add_meta_box( 'submitdiv', __( 'Save', SPOTS_DOM ), 'post_submit_meta_box', SPOTS_POST_TYPE, 'side', 'low' );
+			add_meta_box( 'pageparentdiv', __( 'Template', SPOTS_DOM ), array( $this, 'attributes_meta_box' ), SPOTS_POST_TYPE, 'side', 'high' );
+			add_meta_box( 'postimagediv', __( 'Featured Image', SPOTS_DOM ), 'post_thumbnail_meta_box', SPOTS_POST_TYPE, 'side', 'high' );
 		}
 
 
@@ -289,7 +290,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 			if ( $templates ) {
 				?>
-				<label class="screen-reader-text" for="page_template"><?php _e( 'Template' ) ?></label>
+				<label class="screen-reader-text" for="page_template"><?php _e( 'Template', SPOTS_DOM ) ?></label>
 				<select name="page_template" id="page_template">
 					<option value=""><?php _e( 'Default Template', SPOTS_DOM ); ?></option> <?php
 					foreach ( $templates as $i => $name ) {
@@ -436,23 +437,23 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			<?php wp_nonce_field( 'internal-linking', '_ajax_linking_nonce', false ); ?>
 			<div id="link-selector">
 				<div id="link-options">
-					<p class="howto"><?php _e( 'Enter the destination URL' ); ?></p>
+					<p class="howto"><?php _e( 'Enter the destination URL', SPOTS_DOM ); ?></p>
 					<div>
-						<label><span><?php _e( 'URL' ); ?></span><input id="url-field" type="text" tabindex="10" name="href" /></label>
+						<label><span><?php _e( 'URL', SPOTS_DOM ); ?></span><input id="url-field" type="text" tabindex="10" name="href" /></label>
 					</div>
 					<div>
-						<label><span><?php _e( 'Title' ); ?></span><input id="link-title-field" type="text" tabindex="20" name="linktitle" /></label>
+						<label><span><?php _e( 'Title', SPOTS_DOM ); ?></span><input id="link-title-field" type="text" tabindex="20" name="linktitle" /></label>
 					</div>
 					<div class="link-target">
-						<label><input type="checkbox" id="link-target-checkbox" tabindex="30" /> <?php _e( 'Open link in a new window/tab' ); ?></label>
+						<label><input type="checkbox" id="link-target-checkbox" tabindex="30" /> <?php _e( 'Open link in a new window/tab', SPOTS_DOM ); ?></label>
 					</div>
 				</div>
 				<?php $show_internal = '1' == get_user_setting( 'wplink', '0' ); ?>
-				<p class="howto toggle-arrow <?php if ( $show_internal ) echo 'toggle-arrow-active'; ?>" id="internal-toggle"><?php _e( 'Or link to existing content' ); ?></p>
+				<p class="howto toggle-arrow <?php if ( $show_internal ) echo 'toggle-arrow-active'; ?>" id="internal-toggle"><?php _e( 'Or link to existing content', SPOTS_DOM ); ?></p>
 				<div id="search-panel"<?php if ( ! $show_internal ) echo ' style="display:none"'; ?>>
 					<div class="link-search-wrapper">
 						<label>
-							<span><?php _e( 'Search' ); ?></span>
+							<span><?php _e( 'Search', SPOTS_DOM ); ?></span>
 							<input type="text" id="search-field" class="link-search-field" tabindex="60" autocomplete="off" />
 							<img class="waiting" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
 						</label>
@@ -464,7 +465,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 						</div>
 					</div>
 					<div id="most-recent-results" class="query-results">
-						<div class="query-notice"><em><?php _e( 'No search term specified. Showing recent items.' ); ?></em></div>
+						<div class="query-notice"><em><?php _e( 'No search term specified. Showing recent items.', SPOTS_DOM ); ?></em></div>
 						<ul></ul>
 						<div class="river-waiting">
 							<img class="waiting" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
@@ -474,10 +475,10 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			</div>
 			<div class="submitbox">
 				<div id="wp-link-cancel">
-					<a class="submitdelete deletion" href="#"><?php _e( 'Cancel' ); ?></a>
+					<a class="submitdelete deletion" href="#"><?php _e( 'Cancel', SPOTS_DOM ); ?></a>
 				</div>
 				<div id="wp-link-update">
-					<?php submit_button( __( 'Update' ), 'primary', 'wp-link-submit', false, array( 'tabindex' => 100 ) ); ?>
+					<?php submit_button( __( 'Update', SPOTS_DOM ), 'primary', 'wp-link-submit', false, array( 'tabindex' => 100 ) ); ?>
 				</div>
 			</div>
 			</form> <?php
@@ -729,7 +730,7 @@ if ( ! class_exists( 'icit_spots_mce_button' ) ) {
 								<div id="spot_templates">
 									<p class="howto"><?php _e( 'Choose a template', SPOTS_DOM ); ?></p>
 
-									<label for="spot_template"><?php _e( 'Template:' ) ?></label>
+									<label for="spot_template"><?php _e( 'Template:', SPOTS_DOM ) ?></label>
 									<select id="spot_template">
 										<option value=""><?php _e( 'Default Template', SPOTS_DOM ); ?></option> <?php
 										foreach ( $templates as $i => $name ) {
@@ -786,7 +787,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		 * @return Null
 		 */
 		public function __construct( ) {
-			$widget_ops = array( 'classname' => 'spot', 'description' => __( 'Spot widget. Create or choose an existing spot to display.' ) );
+			$widget_ops = array( 'classname' => 'spot', 'description' => __( 'Spot widget. Create or choose an existing spot to display.', SPOTS_DOM ) );
 			$control_ops = array( 'width' => 550 );
 			$this->WP_Widget( SPOTS_POST_TYPE, __( 'Spot', SPOTS_DOM ), $widget_ops, $control_ops );
 
@@ -829,10 +830,10 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			}
 
 			wp_localize_script( 'spots_script', 'setPostThumbnailL10n', array(
-						'setThumbnail' => __( 'Use as featured image' ),
-						'saving' => __( 'Saving...' ),
-						'error' => __( 'Could not set that as the thumbnail image. Try a different attachment.' ),
-						'done' => __( 'Done' ),
+						'setThumbnail' => __( 'Use as featured image', SPOTS_DOM ),
+						'saving' => __( 'Saving...', SPOTS_DOM ),
+						'error' => __( 'Could not set that as the thumbnail image. Try a different attachment.', SPOTS_DOM ),
+						'done' => __( 'Done', SPOTS_DOM ),
 						'l10n_print_after' => 'try{convertEntities(setPostThumbnailL10n);}catch(e){};',
 						// Widget MCE stuff
 						'basename' => SPOTS_POST_TYPE, // Widget Base name
@@ -1011,8 +1012,8 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 			// once a spot is chosen or created the widget is inexorably bound to that spot - simplifies the UI greatly.
 			if ( empty( $id ) || $id == 0 ) { ?>
 				<p>
-					<a class="button create-spot" href="#"><?php _e( 'Create a new spot' ); ?></a>
-					<span class="description"><?php _e( '(You must enter a title first)' ); ?></span>
+					<a class="button create-spot" href="#"><?php _e( 'Create a new spot', SPOTS_DOM ); ?></a>
+					<span class="description"><?php _e( '(You must enter a title first)', SPOTS_DOM ); ?></span>
 				</p> <?php
 			} else { ?>
 
@@ -1021,7 +1022,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 			if ( count( $spots ) && ( empty( $id ) || $id == 0 ) ) { ?>
 				<p>
-					<label for="<?php echo $this->get_field_id( 'id' ); ?>"><?php if ( empty( $id ) ) _e( 'Or select an existing ' ); _e( 'Spot:', SPOTS_DOM ); ?>
+					<label for="<?php echo $this->get_field_id( 'id' ); ?>"><?php if ( empty( $id ) ) _e( 'Or select an existing ', SPOTS_DOM ); _e( 'Spot:', SPOTS_DOM ); ?>
 						<select name="<?php echo $this->get_field_name( 'id' ); ?>" id="<?php echo $this->get_field_id( 'id' ); ?>" class="widefat spot-select"> <?php
 							printf( '<option value="">%s</option>', __( 'None', SPOTS_DOM ) );
 							foreach ( $spots as $spot ) {
@@ -1060,7 +1061,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				?>
 
 				<p>
-					<label for="<?php echo $this->get_field_id( 'template' ); ?>"><?php _e( 'Template' ) ?></label>
+					<label for="<?php echo $this->get_field_id( 'template' ); ?>"><?php _e( 'Template', SPOTS_DOM ) ?></label>
 					<select class="widefat" name="<?php echo $this->get_field_name( 'template' ); ?>" id="<?php echo $this->get_field_id( 'template' ); ?>">
 						<option value=""><?php _e( 'Default Template', SPOTS_DOM ); ?></option> <?php
 						foreach ( $templates as $i => $name ) {
@@ -1071,7 +1072,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 			} ?>
 
-			<p><a class="edit-spot-link"<?php echo intval( $id ) ? '' : ' style="display:none;"';?> target="_parent" href="./post.php?post=<?php echo $id; ?>&amp;post_type=<?php echo SPOTS_POST_TYPE; ?>&amp;action=edit"><?php _e( 'Go to the full editor for this spot' ); ?></a></p> <?php
+			<p><a class="edit-spot-link"<?php echo intval( $id ) ? '' : ' style="display:none;"';?> target="_parent" href="./post.php?post=<?php echo $id; ?>&amp;post_type=<?php echo SPOTS_POST_TYPE; ?>&amp;action=edit"><?php _e( 'Go to the full editor for this spot', SPOTS_DOM ); ?></a></p> <?php
 		}
 
 
@@ -1098,8 +1099,8 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		// alternative spot featured image interface output
 		function _wp_post_thumbnail_html( $thumbnail_id = NULL, $post_ID = 0 ) {
 			global $content_width, $_wp_additional_image_sizes;
-			$set_thumbnail_link = '<p class="hide-if-no-js"><a title="' . esc_attr__( 'Set featured image' ) . '" href="' . esc_url( str_replace( 'post_id=0', "post_id=$post_ID", get_upload_iframe_src( 'image' ) ) ) . '" class="set-post-thumbnail thickbox">%s</a></p>';
-			$content = sprintf( $set_thumbnail_link, esc_html__( 'Set featured image' ) );
+			$set_thumbnail_link = '<p class="hide-if-no-js"><a title="' . esc_attr__( 'Set featured image', SPOTS_DOM ) . '" href="' . esc_url( str_replace( 'post_id=0', "post_id=$post_ID", get_upload_iframe_src( 'image' ) ) ) . '" class="set-post-thumbnail thickbox">%s</a></p>';
+			$content = sprintf( $set_thumbnail_link, esc_html__( 'Set featured image', SPOTS_DOM ) );
 
 			if ( ! $thumbnail_id && $post_ID > 0 )
 				$thumbnail_id = ( int )get_post_meta( $post_ID, '_thumbnail_id', true );
@@ -1115,7 +1116,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 					$ajax_nonce = wp_create_nonce( "set_spot_thumbnail-$post_ID" );
 
 					$content = sprintf( $set_thumbnail_link, $thumbnail_html );
-					$content .= '<p class="hide-if-no-js"><a href="#" class="remove-post-thumbnail" onclick="WPRemoveThumbnail(\'' . $ajax_nonce . '\', '. $post_ID .' );return false;">' . esc_html__( 'Remove featured image' ) . '</a></p>';
+					$content .= '<p class="hide-if-no-js"><a href="#" class="remove-post-thumbnail" onclick="WPRemoveThumbnail(\'' . $ajax_nonce . '\', '. $post_ID .' );return false;">' . esc_html__( 'Remove featured image', SPOTS_DOM ) . '</a></p>';
 				}
 				$content_width = $old_content_width;
 			}
@@ -1237,7 +1238,7 @@ function icit_get_spot( $spot_id = false, $template = '', $echo = false ) {
 
 			$spot_id = wp_update_post( array(
 				'ID' => $new_id,
-				'post_content' => '<div><a href="'. get_edit_post_link( $new_id ) .'">'. sprintf( __( 'Click here to edit the %s spot.' ), esc_html( $name ) ) .'</a></div>'
+				'post_content' => '<div><a href="'. get_edit_post_link( $new_id ) .'">'. sprintf( __( 'Click here to edit the %s spot.', SPOTS_DOM ), esc_html( $name ) ) .'</a></div>'
 			) );
 		}
 	}
