@@ -9,13 +9,16 @@
  Author URI: http://interconnectit.com
 */
 
-// it's all about the future
+// Check that we're using a version of WordPress that this works with.
 global $wp_version;
-
 if ( version_compare( $wp_version, '3.0', 'lt' ) )
 	return false;
 
-// Plugin constants
+// Set up the translation domain.
+defined( 'SPOTS_DOM' ) || define( 'SPOTS_DOM', 'spots' );
+defined( 'SPOTS_DIR' ) || define( 'SPOTS_DIR', dirname( __FILE__ ) );
+if ( file_exists( SPOTS_DIR . '/lang/' . SPOTS_DOM . '-' . get_locale( ) . '.mo' ) )
+	load_textdomain( SPOTS_DOM, SPOTS_DIR . '/lang/' . SPOTS_DOM . '-' . get_locale( ) . '.mo' );
 
 if ( ! class_exists( 'icit_spots' ) ) {
 	require_once( 'includes/icit-plugin.php' );
@@ -73,17 +76,11 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		public static function _init( ) {
 			global $icit_spots;
 
-			if ( ! defined( 'SPOTS_DOM' ) )
-				define( 'SPOTS_DOM', 'spots' );
-
 			if ( ! defined( 'SPOTS_BASE' ) )
 				define( 'SPOTS_BASE', 'SPOTS_widget' );
 
 			if ( ! defined( 'SPOTS_POST_TYPE' ) )
 				define( 'SPOTS_POST_TYPE', 'spot' );
-
-			if ( ! defined( 'SPOTS_DIR' ) )
-				define( 'SPOTS_DIR', dirname( __FILE__ ) );
 
 			if ( ! defined( 'SPOTS_URL' ) )
 				define( 'SPOTS_URL', plugins_url( '', __FILE__ ) );
@@ -96,11 +93,6 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 			if ( ! defined( 'SPOTS_ONCE_FREQ' ) )
 				define( 'SPOTS_ONCE_FREQ', 0 );
-
-			// Load the translations.
-			$locale = get_locale( );
-			if ( file_exists( SPOTS_DIR . '/lang/' . SPOTS_DOM . '-' . $locale . '.mo' ) )
-				load_textdomain( SPOTS_DOM, SPOTS_DIR . '/lang/' . SPOTS_DOM . '-' . $locale . '.mo' );
 
 			if ( self::$instance_spots === null )
 				$icit_spots = self::$instance_spots = new icit_spots( );
