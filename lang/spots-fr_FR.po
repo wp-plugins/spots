@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Spots\n"
 "POT-Creation-Date: 2014-07-18 12:45-0000\n"
-"PO-Revision-Date: 2014-07-18 15:37-0000\n"
+"PO-Revision-Date: 2014-07-18 16:07-0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -28,7 +28,7 @@ msgstr "Réglages "
 
 #: icit-spots.php:106
 msgid "Cache Time (seconds)"
-msgstr "Temps de cache (en seconde)"
+msgstr "Temps de cache (en secondes)"
 
 #: icit-spots.php:107
 msgid "NoIndex on Single Spot Pages?"
@@ -39,8 +39,8 @@ msgid ""
 "Enter an amount of time in seconds to cache spots for. Set to 0 to turn the "
 "caching off, recommeneded if you use a caching plugin."
 msgstr ""
-"Saisissez la durée de temps de cache (en seconde) des spots. Placer la sur 0 "
-"pour éteindre le cache. (Cela est recommander, lorsque vous utilisez un "
+"Saisissez la durée de temps de cache (en secondes) des spots. Placer la sur "
+"0 pour éteindre le cache. (Cela est recommander, lorsque vous utilisez un "
 "plugin de cache!)"
 
 #: icit-spots.php:120
@@ -53,7 +53,7 @@ msgstr ""
 
 #: icit-spots.php:177
 msgid "Add New Spot"
-msgstr "Ajouter nouveau spot"
+msgstr "Ajouter un nouveau spot"
 
 #: icit-spots.php:178 icit-spots.php:536
 msgid "Edit Spot"
@@ -65,7 +65,7 @@ msgstr "Nouveau spot"
 
 #: icit-spots.php:180
 msgid "View Spot"
-msgstr "Ajouter nouveau spot"
+msgstr "Voir spot"
 
 #: icit-spots.php:181
 msgid "Search Spots"
@@ -159,7 +159,7 @@ msgstr "Rechercher des spots"
 
 #: icit-spots.php:715
 msgid "Search:"
-msgstr "Search:"
+msgstr "Rechercher:"
 
 #: icit-spots.php:723
 msgid "Choose a template"
@@ -224,7 +224,7 @@ msgstr "(Insérer d'abord le titre)"
 
 #: icit-spots.php:1017
 msgid "Or select an existing "
-msgstr "Ou choisissez un deja existant"
+msgstr "Ou choisissez un spot déjà existant"
 
 #: icit-spots.php:1017
 msgid "Spot:"
@@ -261,7 +261,7 @@ msgstr "Cliquer ici pour modifier le %s spot."
 
 #: includes/icit-plugin.php:131 includes/icit-plugin.php:425
 msgid "You do not have permission to use this page."
-msgstr "Vous n'avez pas l'autorisation d'utiliser "
+msgstr "Vous n'avez pas l'autorisation d'utiliser cette page."
 
 #: includes/icit-plugin.php:166 includes/icit-plugin.php:453
 msgid "Visit plugin page"

@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Spots\n"
 "POT-Creation-Date: 2014-07-18 11:37-0000\n"
-"PO-Revision-Date: 2014-07-18 12:44-0000\n"
+"PO-Revision-Date: 2014-07-18 16:01-0000\n"
 "Last-Translator: \n"
-"Language-Team: \n"
+"Language-Team: Cara Fischer\n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -40,14 +40,16 @@ msgid ""
 "caching off, recommeneded if you use a caching plugin."
 msgstr ""
 "Geben Sie die Cache-Dauer (in Sekunden) der Spots ein. Setzen Sie die Cache-"
-"Dauer auf 0, um das Cachen auszuschalten. (Was Ihnen geraten wird, falls Sie "
-"einen Cache-Plugin benutzen!)"
+"Dauer auf 0, um das Cachen auszuschalten. (Dies wird Ihnen geraten, falls "
+"Sie einen Cache-Plugin benutzen!)"
 
 #: icit-spots.php:120
 msgid ""
 "Each Spot has a dedicated page, allow these pages to be indexed by search "
 "engines?"
-msgstr "Jeder Spot verfuegt uber eine zugeordnete Seite, "
+msgstr ""
+"Jeder Spot verfügt über eine zugeordnete Seite, erlauben Sie den "
+"Suchmaschinen diese Webseite zu indexieren."
 
 #: icit-spots.php:177
 msgid "Add New Spot"
@@ -63,7 +65,7 @@ msgstr "Neuer Spot"
 
 #: icit-spots.php:180
 msgid "View Spot"
-msgstr "View Spot"
+msgstr "Siehe Spot"
 
 #: icit-spots.php:181
 msgid "Search Spots"
@@ -181,7 +183,7 @@ msgstr "Einsetzen"
 
 #: icit-spots.php:750
 msgid "Close"
-msgstr "schließen"
+msgstr "Schließen"
 
 #: icit-spots.php:782
 msgid "Spot widget. Create or choose an existing spot to display."
@@ -258,7 +260,7 @@ msgstr "Beitragsbild entfernen"
 #: icit-spots.php:1233
 #, php-format
 msgid "Click here to edit the %s spot."
-msgstr "Klicken Sie hier um den %s des Spots zu bearbeiten "
+msgstr "Klicken Sie hier, um den %s des Spots zu bearbeiten "
 
 #: includes/icit-plugin.php:131 includes/icit-plugin.php:425
 msgid "You do not have permission to use this page."
