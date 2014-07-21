@@ -171,9 +171,9 @@ if ( ! class_exists( 'icit_spots' ) ) {
 
 		function post_type( ) {
 			$labels = array(
-				'name' => _x( 'Spots', SPOTS_DOM ),
-				'singular_name' => _x( 'Spot', SPOTS_DOM ),
-				'add_new' => _x( 'Add New', SPOTS_DOM ),
+				'name' => _x( 'Spots', 'post type name', SPOTS_DOM ),
+				'singular_name' => _x( 'Spot', 'Singular post type name', SPOTS_DOM ),
+				'add_new' => _x( 'Add New', 'post type menu to add new item', SPOTS_DOM ),
 				'add_new_item' => __( 'Add New Spot', SPOTS_DOM ),
 				'edit_item' => __( 'Edit Spot', SPOTS_DOM ),
 				'new_item' => __( 'New Spot', SPOTS_DOM ),

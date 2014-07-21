@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Spots\n"
-"POT-Creation-Date: 2014-07-18 11:37-0000\n"
-"PO-Revision-Date: 2014-07-18 16:01-0000\n"
+"POT-Creation-Date: 2014-07-21 15:16-0000\n"
+"PO-Revision-Date: 2014-07-21 15:25-0000\n"
 "Last-Translator: \n"
 "Language-Team: Cara Fischer\n"
 "Language: de_DE\n"
@@ -50,6 +50,21 @@ msgid ""
 msgstr ""
 "Jeder Spot verfügt über eine zugeordnete Seite, erlauben Sie den "
 "Suchmaschinen diese Webseite zu indexieren."
+
+#: icit-spots.php:174
+msgctxt "post type name"
+msgid "Spots"
+msgstr "Spots"
+
+#: icit-spots.php:175
+msgctxt "Singular post type name"
+msgid "Spot"
+msgstr "Spot"
+
+#: icit-spots.php:176
+msgctxt "post type menu to add new item"
+msgid "Add New"
+msgstr ""
 
 #: icit-spots.php:177
 msgid "Add New Spot"
