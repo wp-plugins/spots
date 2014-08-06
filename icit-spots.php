@@ -63,7 +63,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			}
 
 			// shortcode
-			add_filter( 'the_content', array( $this, 'late_shortcode' ), 9999999 );
+			add_filter( 'the_content', array( $this, 'late_shortcode' ), 9996 );
 
 			register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
 			register_activation_hook( __FILE__, array( $this, 'activation' ) );
