@@ -4,7 +4,7 @@
  Plugin URI: http://wordpress.org/extend/plugins/spots/
  Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
  Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
- Version: 1.3
+ Version: 1.3.1
  Text Domain: spots
  Author URI: http://interconnectit.com
 */
@@ -676,8 +676,8 @@ if ( ! class_exists( 'icit_spots_mce_button' ) ) {
 					<meta charset="<?php bloginfo( 'charset' ); ?>" />
 					<title><?php _e( 'Insert Spot.', SPOTS_DOM ); ?></title>
 
-					<script language="javascript" type="text/javascript" src="<?php echo home_url( ) ?>/wp-includes/js/tinymce/tiny_mce_popup.js"></script>
-					<script language="javascript" type="text/javascript" src="<?php echo home_url( ) ?>/wp-includes/js/tinymce/utils/form_utils.js"></script> <?php
+					<script language="javascript" type="text/javascript" src="<?php echo set_url_scheme( includes_url( '/js/tinymce/tiny_mce_popup.js' ), is_ssl() ? 'https' : 'http' ) ?>"></script>
+					<script language="javascript" type="text/javascript" src="<?php echo set_url_scheme( includes_url( '/js/tinymce/utils/form_utils.js' ), is_ssl() ? 'https' : 'http' ) ?>"></script> <?php
 					wp_print_scripts( 'icit-finder' );
 					wp_print_styles( 'icit-finder' );?>
 				</head>

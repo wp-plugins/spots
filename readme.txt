@@ -3,8 +3,8 @@ Contributors: interconnectit, spectacula, sanchothefat, TJNowell, chiquita
 Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 3.0
-Tested up to: 3.9
-Stable tag: 1.2.2
+Tested up to: 4.0
+Stable tag: 1.3.1
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -137,6 +137,9 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.3.1 =
+* Fixed: Issue with admin https and the front end http.
+
 = 1.3 =
 * Added: Filter to disable the edit spot button. Adding add_filter( 'spots_show_edit_link', '__return_false' ); to your functions.php should result in the removal of the inline edit link.
 * Fixed: Media button no more in line with WordPress best practice.
@@ -239,6 +242,9 @@ If you have a featured image, your theme can use this for display options.  If y
 * Development version and Alpha release.
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+Fixed mixed for use in mixed protocol domains. Tested and working in WordPress version 4.0. Support for much older versions of WordPress have been removed, 3.9+ is recommended.
 
 = 1.3 =
 Improved support for WordPress 3.9. Removes some support for older versions of WP.
