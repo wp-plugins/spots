@@ -4,7 +4,7 @@
  Plugin URI: http://wordpress.org/extend/plugins/spots/
  Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
  Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
- Version: 1.3.1
+ Version: 1.3.2
  Text Domain: spots
  Author URI: http://interconnectit.com
 */
@@ -308,7 +308,13 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			if ( $post->post_type == SPOTS_POST_TYPE )
 				return $content;
 
+			if ( strpos( $content, '[icitspot ' ) === false )
+				return $content;
+
 			add_shortcode( 'icitspot', array( $this, 'shortcode' ) );
+
+			// Make sure our shorcode hasn't been messed up..
+			$content = preg_replace_callback( '/\[icitspot[^\]]*\]/s', array( $this, 'late_shortcode_fix' ), $content );
 
 			// Do the shortcode (only the [icitspot] one is registered)
 			$content = shortcode_unautop( $content );
@@ -317,6 +323,35 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			remove_shortcode( 'icitspot' );
 
 			return $content;
+		}
+
+
+		/**
+		 * As we have to run our shortcode much later in the cycle than a normal
+		 * short code we've run into problems with the new measures added as of
+		 * WordPress 4.0.1.  The quotes get messed up by wptexturize, if we
+		 * could run this before wptexturize it wouldn't be a problem but we can
+		 * not. This is a simple method used by preg_replace_callback that'll
+		 * repair the shortcode's quotes and decode it so that do shortcode will
+		 * work again.
+		 *
+		 * @param array $replace The array of matched from preg_replace_callback
+		 *
+		 * @return string the cleaned up string.
+		 */
+		function late_shortcode_fix( $replace ) {
+
+			// Get the first match
+			if ( is_array( $replace ) )
+				$replace = array_shift( $replace );
+
+			// Repair the quotes. It seems quotes after numbers are only ever going to be for Feet/Inches measurements. Bloody Arrogant Americans... :D
+			$replace = str_replace( array( '&rdquo;', '&Prime;', '&prime;', '&rsquo;' ), '"', $replace );
+
+			// Convert any other html entities back to their appropriate text.
+			$replace = html_entity_decode( $replace );
+
+			return $replace;
 		}
 
 
@@ -333,7 +368,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 				'template' => ''
 			), $atts );
 
-			$spot_id = $atts[ 'id' ];
+			$spot_id = absint( preg_replace( '/[^0-9]/', '', $atts[ 'id' ] ) ); // Make sure the spot ID is numeric
 			$template = $atts[ 'template' ];
 
 			// insanity check

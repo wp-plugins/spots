@@ -2,9 +2,9 @@
 Contributors: interconnectit, spectacula, sanchothefat, TJNowell, chiquita, cm2creative
 Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
-Requires at least: 3.0
-Tested up to: 4.0
-Stable tag: 1.3.1
+Requires at least: 4.0
+Tested up to: 4.0.1
+Stable tag: 1.3.2
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -137,6 +137,9 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.3.2 =
+* Fixed: WordPress as of 4.0.1 makes the assumption that quotes after a number are always to denote feet/inches, this messes up the very late running of our shortcode. I've implemented a fix that'll repair the quotes around the post_id in the shortcode.
+
 = 1.3.1 =
 * Fixed: Issue with admin https and the front end http.
 
@@ -242,6 +245,9 @@ If you have a featured image, your theme can use this for display options.  If y
 * Development version and Alpha release.
 
 == Upgrade Notice ==
+
+= 1.3.2 =
+Fixed WordPress as of 4.0.1 makes the assumption that quotes after a number are always going to denote feet/inches, this messes up the very late running of our shortcode. I've implemented a fix that'll repair the quotes around the post_id in the shortcode. Only needed if you're running 4.0.1+ of WP.
 
 = 1.3.1 =
 Fixed mixed for use in mixed protocol domains. Tested and working in WordPress version 4.0. Support for much older versions of WordPress have been removed, 3.9+ is recommended.
