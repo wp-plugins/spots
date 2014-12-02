@@ -4,7 +4,7 @@
  Plugin URI: http://wordpress.org/extend/plugins/spots/
  Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
  Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
- Version: 1.3.2
+ Version: 1.3.3
  Text Domain: spots
  Author URI: http://interconnectit.com
 */
@@ -109,12 +109,12 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			register_setting( 'spots', 'spots_norobots', 'intval' );
 		}
 
-		function cache_time_field() {
+		static function cache_time_field() {
 			echo '<input type="text" name="spots_cache_time" value="' . get_option( 'spots_cache_time', SPOTS_CACHE_TIME ) . '" />';
 			echo '<p class="description">' . __( 'Enter an amount of time in seconds to cache spots for. Set to 0 to turn the caching off, recommeneded if you use a caching plugin.', SPOTS_DOM ) . '</p>';
 		}
 
-		function norobots_field() {
+		static function norobots_field() {
 			echo '<input type="checkbox" name="spots_norobots" value="1" ';
 			echo checked( get_option( 'spots_norobots', 1 ), 1 ); echo ' />';
 			echo '<p class="description">' . __( 'Each Spot has a dedicated page, allow these pages to be indexed by search engines?', SPOTS_DOM ) . '</p>';
@@ -345,8 +345,19 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			if ( is_array( $replace ) )
 				$replace = array_shift( $replace );
 
+			// Replace all entities with their numeric equiv
+			$replace = ent2ncr( $replace );
+
+			// A list of things that can be quotes that we'll need to convert back
+			$quotes = array(
+							'&#34;',	'&#171;',	'&#187;',	'&#8216;',
+							'&#8217;',	'&#8218;',	'&#8220;',	'&#8221;',
+							'&#8222;',	'&#8242;',	'&#8243;',	'&#8249;',
+							'&#8250;'
+						);
+
 			// Repair the quotes. It seems quotes after numbers are only ever going to be for Feet/Inches measurements. Bloody Arrogant Americans... :D
-			$replace = str_replace( array( '&rdquo;', '&Prime;', '&prime;', '&rsquo;' ), '"', $replace );
+			$replace = str_replace( $quotes, '"', $replace );
 
 			// Convert any other html entities back to their appropriate text.
 			$replace = html_entity_decode( $replace );
@@ -369,7 +380,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 			), $atts );
 
 			$spot_id = absint( preg_replace( '/[^0-9]/', '', $atts[ 'id' ] ) ); // Make sure the spot ID is numeric
-			$template = $atts[ 'template' ];
+			$template = trim( $atts[ 'template' ] );
 
 			// insanity check
 			if ( get_post_type( ) == SPOTS_POST_TYPE )

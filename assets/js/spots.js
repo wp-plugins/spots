@@ -2,6 +2,9 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 ;(function($){
 	$( document ).ready( function( ) {
 
+		// If Tiny MCE fails to load we should just jump ship...
+		if ( typeof window.tinyMCE === 'undefined' )
+			return;
 
 		var bn = setPostThumbnailL10n.basename, // Widget base name
 			mi = setPostThumbnailL10n.mceid, // Settings ID
@@ -37,6 +40,7 @@ var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThu
 							.insertBefore( ta.parent() )
 							.removeClass( 'hidden' )
 							.find( 'a' )
+							.data( 'editor', id )
 							.bind( 'click.' + bn, function( ) {
 								if ( typeof( tinyMCE ) === 'object' && ICITgetInstance( id ) )
 									tinyMCE.execCommand( 'mceFocus', false, id );

@@ -10,7 +10,7 @@
 				op = '';
 
 			if ( sv > 0 ) {
-				sc = sc.replace( 'template=%VALUE2%', typeof( tv ) !== 'undefined' && tv !== '' ? 'template="' + tv + '"' : '');
+				sc = sc.replace( ' template=%VALUE2%', typeof( tv ) !== 'undefined' && tv !== '' ? ' template="' + tv + '"' : '');
 				op = st + sc.replace( '%VALUE1%', sv );
 
 				if ( window.tinyMCE.majorVersion < 4 ) {
