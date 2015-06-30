@@ -1,4 +1,4 @@
-var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThumbnail;
+var tb_position, current_spot, WPSetThumbnailHTML, WPSetThumbnailID, WPRemoveThumbnail, pagenow, adminpage;
 ;(function($){
 	$( document ).ready( function( ) {
 

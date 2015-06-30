@@ -826,11 +826,12 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		 */
 		public function __construct( ) {
 			$widget_ops = array( 'classname' => 'spot', 'description' => __( 'Spot widget. Create or choose an existing spot to display.', SPOTS_DOM ) );
-			$control_ops = array( 'width' => 550 );
+			$control_ops = array();
 			$this->WP_Widget( SPOTS_POST_TYPE, __( 'Spot', SPOTS_DOM ), $widget_ops, $control_ops );
 
-			add_action( 'admin_init', array( $this, 'admin_init' ), 100 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 100 );
 			add_action( 'admin_footer', array( $this, 'admin_footer' ), 3001 );
+			add_action( 'customize_controls_print_footer_scripts', array( $this, 'admin_footer' ), 3001 );
 			add_action( 'wp_ajax_set-spot-thumbnail', array( $this, 'set_spot_thumbnail' ) );
 		}
 
@@ -840,10 +841,10 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		 *
 		 * @return Null
 		 */
-		public function admin_init( ) {
-			global $pagenow, $wp_version;
+		public function admin_enqueue_scripts( ) {
+			global $pagenow, $wp_version, $wp_scripts;
 
-			if ( $pagenow != 'widgets.php' )
+			if ( !in_array( $pagenow, array( 'customize.php', 'widgets.php' ) ) )
 				return;
 
 			// fix async upload image
@@ -863,8 +864,8 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 
 
 			if ( user_can_richedit( ) ) {
-				wp_enqueue_script( 'post' );
-				wp_enqueue_script( 'editor' );
+				//wp_enqueue_script( 'post' ); ///wp-admin/js/post.min.js
+				wp_enqueue_script( 'editor' ); ///wp-admin/js/editor.min.js
 			}
 
 			wp_localize_script( 'spots_script', 'setPostThumbnailL10n', array(
@@ -892,7 +893,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		public function admin_footer( ) {
 			global $pagenow, $post;
 
-			if ( $pagenow != 'widgets.php' || !user_can_richedit( ) )
+			if ( !in_array( $pagenow, array( 'customize.php', 'widgets.php' ) ) || !user_can_richedit( ) )
 				return;
 
 			if ( empty( $post ) ) // Stops warnings being thrown on the widget page.
