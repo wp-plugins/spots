@@ -1,9 +1,9 @@
 === Plugin Name ===
-Contributors: interconnectit, spectacula, sanchothefat, TJNowell, chiquita, cm2creative
+Contributors: interconnectit, spectacula, sanchothefat, TJNowell, chiquita, cm2creative, AndyWalmsley
 Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 4.0
-Tested up to: 4.0.1
+Tested up to: 4.3
 Stable tag: 1.3.3
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
@@ -136,6 +136,10 @@ If you have a featured image, your theme can use this for display options.  If y
 6. A Template Tag replacement of content in the footer of the 2010 theme.
 
 == Changelog ==
+
+= 1.3.4 =
+* Fixed: Widgets not working in 4.3
+* Fixed: Notices about deprecated functions
 
 = 1.3.3 =
 * Fixed: More fixes for WordPress 4.0.1 and the quote problem.

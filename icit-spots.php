@@ -4,7 +4,7 @@
  Plugin URI: http://wordpress.org/extend/plugins/spots/
  Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
  Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
- Version: 1.3.3
+ Version: 1.3.4
  Text Domain: spots
  Author URI: http://interconnectit.com
 */
@@ -29,7 +29,7 @@ if ( ! class_exists( 'icit_spots' ) ) {
 		'parent_slug' => 'edit.php?post_type=spot'
 	) );
 
-	add_action( 'init', array( 'icit_spots', '_init' ), 1 ); // This creates the main plugin object and the button object.
+	add_action( 'plugins_loaded', array( 'icit_spots', '_init' ), 1 ); // This creates the main plugin object and the button object.
 
 	// add settings
 	add_action( 'admin_init', array( 'icit_spots', 'settings' ) );
@@ -683,6 +683,11 @@ if ( ! class_exists( 'icit_spots_mce_button' ) ) {
 			add_action( 'admin_init', array( $this, 'the_button' ) );
 			add_action( 'wp_ajax_spots_mce_popup', array( $this, 'mce_popup' ) );
 
+			add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts' ) );
+		}
+
+
+		function register_scripts() {
 			// Register some scripts
 			wp_register_script( 'autocomplete', trailingslashit( SPOTS_URL ) . 'assets/js/jquery.autocomplete.js', array( 'jquery' ) );
 			wp_register_script( 'icit-finder', trailingslashit( SPOTS_URL ) . 'assets/js/finder.js', array( 'jquery', 'autocomplete' ), 1, true );
@@ -827,7 +832,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 		public function __construct( ) {
 			$widget_ops = array( 'classname' => 'spot', 'description' => __( 'Spot widget. Create or choose an existing spot to display.', SPOTS_DOM ) );
 			$control_ops = array( 'width' => 550 );
-			$this->WP_Widget( SPOTS_POST_TYPE, __( 'Spot', SPOTS_DOM ), $widget_ops, $control_ops );
+			parent::__construct( SPOTS_POST_TYPE, __( 'Spot', SPOTS_DOM ), $widget_ops, $control_ops );
 
 			add_action( 'admin_init', array( $this, 'admin_init' ), 100 );
 			add_action( 'admin_footer', array( $this, 'admin_footer' ), 3001 );
@@ -1078,7 +1083,7 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				</div>
 
 				<div class="editorcontainer wp-editor-wrap">
-					<textarea cols="40" rows="10" class="widefat mceme" id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>"><?php echo wp_richedit_pre( $spot_post->post_content ); ?></textarea>
+					<textarea cols="40" rows="10" class="widefat mceme" id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>"><?php echo format_for_editor( $spot_post->post_content ); ?></textarea>
 				</div>
 
 				<?php
