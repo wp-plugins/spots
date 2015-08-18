@@ -4,7 +4,7 @@ Donate link: http://interconnectit.com/2364/announcing-spots/
 Tags: spots, elements, snippets, widget, content management
 Requires at least: 4.0
 Tested up to: 4.3
-Stable tag: 1.3.4
+Stable tag: 1.3.5
 
 Content manage those little snippets of text that you need across your WordPress site and in widgets properly. Forget the text widget.
 
@@ -137,6 +137,9 @@ If you have a featured image, your theme can use this for display options.  If y
 
 == Changelog ==
 
+= 1.3.5 =
+* Fixed: Fatal error on versions < 4.3 with new function format_for_editor()
+
 = 1.3.4 =
 * Fixed: Widgets not working in 4.3
 * Fixed: Notices about deprecated functions
@@ -254,6 +257,9 @@ If you have a featured image, your theme can use this for display options.  If y
 * Development version and Alpha release.
 
 == Upgrade Notice ==
+
+= 1.3.5 =
+Fixes for WordPress version < 4.3
 
 = 1.3.4 =
 Fixes for WordPress 4.3

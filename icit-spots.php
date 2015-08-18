@@ -4,7 +4,7 @@
  Plugin URI: http://wordpress.org/extend/plugins/spots/
  Description: Spots are a post type that you can use to add static text, html, images and videos etc... anywhere on your site that you don't want appearing in your site map or search results. You can call a spot via a template tag, shortcode or use the widget.
  Author: Robert O'Rourke, James R Whitehead, Tom J Nowell
- Version: 1.3.4
+ Version: 1.3.5
  Text Domain: spots
  Author URI: http://interconnectit.com
 */
@@ -1083,7 +1083,15 @@ if ( ! class_exists( 'Spot_Widget' ) ) {
 				</div>
 
 				<div class="editorcontainer wp-editor-wrap">
-					<textarea cols="40" rows="10" class="widefat mceme" id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>"><?php echo format_for_editor( $spot_post->post_content ); ?></textarea>
+					<textarea cols="40" rows="10" class="widefat mceme" id="<?php echo $this->get_field_id( 'content' ); ?>" name="<?php echo $this->get_field_name( 'content' ); ?>">
+						<?php
+						if ( version_compare( $wp_version, '4.3', '>=' ) ) {
+							echo format_for_editor( $spot_post->post_content );
+						} else {
+							echo wp_richedit_pre( $spot_post->post_content );
+						}
+						?>
+					</textarea>
 				</div>
 
 				<?php
